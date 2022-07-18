@@ -13,6 +13,7 @@ const subtaskSubmit = async (
   call = call + "mainTaskName=" + mainTaskName + "&";
   call = call + "employerName=" + employerName + "&";
   call = call + "workerArray=" + workerArray;
-  await (await fetch(call)).json();
+  let result = await (await fetch(call)).json();
+  return result;
 };
 export default subtaskSubmit;

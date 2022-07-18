@@ -2,6 +2,43 @@
 var admin = require("firebase-admin");
 const db = admin.firestore();
 
+// Function to find the type of user (either employer or employee) by searching the users database
+// Access value in result body
+findUserType = async (email) => {
+  const userRef = db.collection('users');
+  const snapshot = await userRef.where('email', '==', email).get();
+  if (snapshot.empty) {
+    const result = {status: 'error', reason: 'There is no user with the corresponding email'};
+    return result;
+  }
+
+  const name = '';
+
+  var count = 0;
+  snapshot.forEach((doc) => {
+    count += 1;
+    name = doc.data().fullName;
+  })
+
+  if (count >= 2) {
+    const result = {status: 'error', reason: 'There are multiple users with that email'};
+    return result;
+  }
+
+  const employerCheck = await db.collection('employers').doc(name).get();
+  const employeeCheck = await db.collection('employers').doc(name).get();
+
+  if (employerCheck.exists()) {
+    const result = {status: 'success', reason: 'The user is an employer', body: 'employer'};
+    return result;
+  }
+
+  if (employeeCheck.exists()) {
+    const result = {status: 'success', reason: 'The user is an employee', body: 'employee'};
+    return result;
+  }
+}
+
 getEmployeeData = async (employeeName) => {
   const employees = db.collection("employees");
   const nameArray = employeeName.split(" ");
@@ -116,11 +153,7 @@ getMainTaskData = async (mainTaskName, employerName) => {
 
 // Function to get the names of all main tasks of an employer
 getAllTaskData = async (employerName) => {
-  const snapshot = await db
-    .collection("employers")
-    .doc(employerName)
-    .collection("tasks")
-    .get();
+  const snapshot = await db.collection("employers").doc(employerName).collection("tasks").get();
   wait = async (snapshot) => {
     tempTaskArray = [];
     snapshot.forEach((doc) => {
@@ -132,9 +165,45 @@ getAllTaskData = async (employerName) => {
   return mainTaskArray;
 };
 
-module.exports = {
-  getEmployeeData,
-  getSubTaskData,
-  getMainTaskData,
-  getAllTaskData,
-};
+// Function to get the names of all unfinished main tasks
+getUnfinishedTasks = async (employerName) => {
+  const snapshot = await db.collection("employers").doc(employerName).collection("tasks").where('status', '==', 'in progress').get();
+  if (snapshot.empty) {
+    result = {status: 'error', reason: 'This employer does not have any tasks in progress'};
+    return result;
+  }
+  wait = async (snapshot) => {
+    tempTaskArray = [];
+    snapshot.forEach((doc) => {
+      data = {name: doc.id, progress: doc.data().progress};
+      tempTaskArray.push(data);
+    });
+    return tempTaskArray;
+  };
+  let taskArray = await wait(snapshot);
+  result = {status: 'success', reason: 'Retrieved all of the tasks in progress', body: taskArray};
+  return result;
+}
+
+// Function to get the names of all finished main tasks
+getFinishedTasks = async (employerName) => {
+  const snapshot = await db.collection("employers").doc(employerName).collection("tasks").where('status', '==', 'finished').get();
+  if (snapshot.empty) {
+    result = {status: 'error', reason: 'This employer does not have any finished tasks'};
+    return result;
+  }
+  wait = async (snapshot) => {
+    tempTaskArray = [];
+    snapshot.forEach((doc) => {
+      data = {name: doc.id, progress: doc.data().progress};
+      tempTaskArray.push(data);
+    });
+    return tempTaskArray;
+  };
+  let taskArray = await wait(snapshot);
+  result = {status: 'success', reason: 'Retrieved all of the finished tasks', body: taskArray};
+  return result;
+}
+
+
+module.exports = { getEmployeeData, getSubTaskData, getMainTaskData, getAllTaskData, getUnfinishedTasks, getFinishedTasks, findUserType };

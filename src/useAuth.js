@@ -15,7 +15,9 @@ import {
   where,
   addDoc,
 } from "firebase/firestore";
+
 import React, { useState, useEffect, useContext, createContext } from "react";
+import {getDatabase ,ref, set} from "firebase/database"
 
 import { config as firebaseConfig } from "./config";
 
@@ -52,7 +54,7 @@ function useProvideAuth() {
 
   // Wrap any Firebase methods we want to use making sure ...
   // ... to save the user to state.
-  const signin = (e, email, password) => {
+  const signin = async(e, email, password) => {
     e.preventDefault();
     const auth = getAuth();
     return signInWithEmailAndPassword(auth, email, password).then(
@@ -60,9 +62,12 @@ function useProvideAuth() {
         setUser(response.user);
         return response.user;
       }
+      
     );
+
   };
   const registerWithEmailAndPassword = async (fullname, username, password) => {
+   const database = getDatabase(app);
     try {
       const auth = getAuth(app);
       const res = await createUserWithEmailAndPassword(
@@ -71,17 +76,27 @@ function useProvideAuth() {
         password
       );
       const user = res.user;
-      await addDoc(collection(db, "users"), {
+     await addDoc(collection(db, "users"), {
         uid: user.uid,
         fullname,
         authProvider: "local",
         username,
       });
+      /*set(ref(database, 'employers/' + fullname), {
+       
+      });*/
+      /*db.collection("employers").doc(fullname).set({
+        uid: user.uid,
+        email: username,
+        fullname: fullname,
+        authProvider:"local"
+      })*/
     } catch (err) {
       console.error(err);
       alert(err.message);
     }
   };
+
   const signup = (e, email, password) => {
     e.preventDefault();
     const auth = getAuth();

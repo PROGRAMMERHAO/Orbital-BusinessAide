@@ -21,7 +21,11 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
-import subtaskSubmit from "./subtasksubmit";
+import { useTheme } from '@mui/material/styles';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { useEffect } from "react";
+//import subtaskSubmit from "./subtasksubmit";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -62,24 +66,91 @@ BootstrapDialogTitle.propTypes = {
 };
 
 export default function CreateSubtask(props) {
-  const [open, setOpen] = React.useState(false);
-  const [task, setTask] = useState();
-  const [people, setPeople] = useState([]);
-  const [description, setDescription] = useState();
-  const [employer, setEmployer] = useState();
-  const [goal, setGoal] = useState();
-  const maintask = props.maintask;
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
+    },
+  };
+  const [personName, setPersonName] = React.useState([]);
+  const names = props.people;
+  const theme = useTheme();
+  function getStyles(name, personName, theme) {
+    return {
+      fontWeight:
+        personName.indexOf(name) === -1
+          ? theme.typography.fontWeightRegular
+          : theme.typography.fontWeightMedium,
+    };
+  }
+ 
+  function refreshPage() {
+    window.location.reload(false);
+  }
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
+  const handleChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setPersonName(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
+  let localerror = -2;
+  
+  const [feedback, setFeedback] = useState(-2);
+  const [open, setOpen] = React.useState(false);
+  const [task, setTask] = useState();
+  const [people, setPeople] = useState([]);
+  const [description, setDescription] = useState();
+  const [employer, setEmployer] = useState();
+  const [goal, setGoal] = useState();
+ 
+  const maintask = props.maintask;
 
+  const subtaskSubmit = async (
+    subTaskName,
+    subTaskDesc,
+    goal,
+    mainTaskName,
+    employerName,
+    workerArray
+  ) => {
+    let call = "/createSubTask/?";
+    call = call + "subTaskName=" + subTaskName + "&"; // do this for each parameter you want to send
+    call = call + "subTaskDesc=" + subTaskDesc + "&";
+    call = call + "goal=" + goal + "&";
+    call = call + "mainTaskName=" + mainTaskName + "&";
+    call = call + "employerName=" + employerName + "&";
+    call = call + "workerArray=" + workerArray;
+    let result = await (await fetch(call)).json();
+    setFeedback(result);
+    localerror = result;
+    
+
+  };
+  //useEffect(()=>{
+    //console.log(props.people)
+    //setNames(props.people);
+ // },[])
   return (
     <div>
       <span style={{ color: "white" }}> hahahahahahaa </span>
-      <Button variant="outlined" onClick={handleClickOpen}>
+      <Button variant="outlined" onClick={handleClickOpen} style={{
+            position: "absolute",
+            left:700,
+            
+          }}>
         New Subtask
       </Button>
       <BootstrapDialog
@@ -131,16 +202,28 @@ export default function CreateSubtask(props) {
               autoFocus
               onChange={(e) => setEmployer(e.target.value)}
             />
-            <TextField
-              value={people}
-              margin="normal"
-              required
-              fullWidth
-              name="people"
-              label="People Assigned"
-              id="people"
-              onChange={(e) => setPeople(e.target.value)}
-            />
+            <FormControl  required fullwidth sx={{ml:0, mt:2, width: 568 }}>
+        <InputLabel id="demo-multiple-name-label">Employees Assigned</InputLabel>
+        <Select
+          labelId="demo-multiple-name-label"
+          id="demo-multiple-name"
+          multiple
+          value={personName}
+          onChange={handleChange}
+          input={<OutlinedInput label="Name" />}
+          MenuProps={MenuProps}
+        >  
+          {names.length===0? "loading" :names.map((name) => (
+            <MenuItem
+              key={name}
+              value={name}
+              style={getStyles(name, personName, theme)}
+            >
+              {name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
             <TextField
               value={goal}
               margin="normal"
@@ -157,15 +240,19 @@ export default function CreateSubtask(props) {
           <Button
             autoFocus
             onClick={() => {
-              subtaskSubmit(
+
+              task===undefined||description===undefined||goal===undefined||employer===[]||personName===undefined? alert("please complete all required fields") : subtaskSubmit(
                 task,
                 description,
                 goal,
                 maintask,
                 employer,
-                people
+                personName
               );
+              console.log(feedback);
+              feedback ===-1? alert("the employee is not found"): console.log("subtask added");
               handleClose();
+              refreshPage();
             }}
           >
             Create Task

@@ -3,17 +3,34 @@ var admin = require("firebase-admin");
 const db = admin.firestore();
 var sc = require("./secret-code"); // secret code prefix
 
-sendEmployer = (firstName, lastName, secretCode) => {
+sendEmployer = async (firstName, lastName, secretCode) => {
   // Send employer data on registration
-  const userData = {
-    firstName: firstName,
-    lastName: lastName,
-    secretcode: secretCode,
+  assign = async (
+    firstName,
+    lastName,
+    secretCode,
+  ) => {
+    var employerData = {
+      firstName: firstName,
+      lastName: lastName,
+      secretcode: secretCode,
+     
+    };
+    return employerData;
   };
-  db.collection("employers")
-    .doc(firstName + " " + lastName)
-    .set(userData);
-  console.log("Employer data sent!");
+  assign(
+    firstName,
+    lastName,
+    secretCode
+  )
+    .then((employerData) => {
+      db.collection("employers")
+        .doc(firstName + " " + lastName)
+        .set(employerData);
+    })
+    .then(() => {
+      console.log("Employee data sent!");
+    });
 };
 
 // send employee data on registration and check to see if secret code is valid
@@ -95,4 +112,48 @@ tempSendEmployee = (firstName, lastName, teamLeader) => {
     .set(tempData);
   console.log("Employee data sent!");
 };
-module.exports = { sendEmployer, sendEmployee, tempSendEmployee };
+
+
+
+
+sendPayroll = async(dailySalary, daysAttended, overtimeHourlyRate, overtimeHours, deductions, overallSalary, employeeName, employerName) => {
+  assign = (dailySalary, daysAttended, overtimeHourlyRate, overtimeHours, deductions, overallSalary) => {
+    var payrollData = {
+      dailySalary: dailySalary, 
+      daysAttended: daysAttended,
+      overtimeHourlyRate: overtimeHourlyRate,
+      overtimeHours: overtimeHours,
+      Deductions: deductions, 
+      overallSalary: overallSalary
+    }
+    return payrollData;
+  }
+
+  const payrollData = await assign(dailySalary, daysAttended, overtimeHourlyRate, overtimeHours, deductions, overallSalary);
+  employerRef = db.collection('employers').doc(employerName).collection('employees').doc(employeeName);
+  employeeRef = db.collection('employees').doc(employeeName);
+  const employerDoc = await employerRef.get();
+  const employeeDoc = await employeeRef.get();
+  if (!employerDoc.exists) {
+    result = {status: 'error', reason: 'No employees with that name were found under that employer! Try checking your spelling!'};
+    console.log(result);
+    return result;
+  } else {
+    employerRef.update(payrollData);
+  }
+
+  if (!employeeDoc.exists) {
+    result = {status: 'error', reason: 'No employees with that name were found! Try checking your spelling!'};
+    console.log(result);
+    return result;
+  } else {
+    employeeRef.update(payrollData);
+  }
+
+  result = {status: 'success', reason: 'Payroll data has been sent!'};
+  console.log(result);
+  return result;
+}
+
+module.exports = { sendEmployer, sendEmployee, tempSendEmployee, sendPayroll };
+

@@ -24,6 +24,17 @@ import Typography from "@mui/material/Typography";
 import handleSubmit from "./handlesubmit";
 import { Card } from "@mui/material";
 import { CardContent } from "@mui/material";
+import { useTheme } from '@mui/material/styles';
+import { useEffect } from "react";
+import EmployeeDataService from "../employeeserver"
+
+
+
+import MenuItem from '@mui/material/MenuItem';
+
+import Select from '@mui/material/Select';
+
+
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
@@ -33,8 +44,11 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
+
 const BootstrapDialogTitle = (props) => {
+  
   const { children, onClose, ...other } = props;
+  
 
   return (
     <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
@@ -63,12 +77,54 @@ BootstrapDialogTitle.propTypes = {
 };
 
 export default function CreateTask() {
+  const [employees, setEmployees] = useState([]);
+  const theme = useTheme();
+  useEffect(() => {
+    getEmployees();
+  }, []);
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
+    },
+  };
+  
+  const names = employees.map(function(employee){
+    return(employee.id);
+  });
+  function getStyles(name, personName, theme) {
+    return {
+      fontWeight:
+        personName.indexOf(name) === -1
+          ? theme.typography.fontWeightRegular
+          : theme.typography.fontWeightMedium,
+    };
+  }
+  const getEmployees = async () => {
+    const data = await EmployeeDataService.getALLEmployee();
+    console.log(data.docs);
+    setEmployees(data.docs.map((doc) => ({ ...doc.data().firstName+" "+doc.data().lastName, id: doc.id })));
+  };
+  
+  const [personName, setPersonName] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [task, setTask] = useState();
   const [people, setPeople] = useState();
   const [description, setDescription] = useState();
   const [employer, setEmployer] = useState([]);
-
+  const handleChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setPersonName(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -136,16 +192,30 @@ export default function CreateTask() {
                     autoFocus
                     onChange={(e) => setEmployer(e.target.value)}
                   />
-                  <TextField
-                    value={people}
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="people"
-                    label="People Assigned"
-                    id="people"
-                    onChange={(e) => setPeople(e.target.value)}
-                  />
+                 {console.log(employees)}
+      <FormControl  required fullwidth sx={{ml:0, mt:2, width: 568 }}>
+        <InputLabel id="demo-multiple-name-label">Employees Assigned</InputLabel>
+        <Select
+          labelId="demo-multiple-name-label"
+          id="demo-multiple-name"
+          multiple
+          value={personName}
+          onChange={handleChange}
+          input={<OutlinedInput label="Name" />}
+          MenuProps={MenuProps}
+        >
+          {names.map((name) => (
+            <MenuItem
+              key={name}
+              value={name}
+              style={getStyles(name, personName, theme)}
+            >
+              {name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+   {console.log(personName)}
                 </Box>
               </DialogContent>
               <DialogActions>
@@ -153,7 +223,7 @@ export default function CreateTask() {
                   autoFocus
                   onClick={() => {
                     console.log(task);
-                    handleSubmit(task, description, employer, people);
+                    task===undefined||description===undefined||employer===[]||personName===undefined? alert("please complete all required fields") :handleSubmit(task, description, employer, personName);
                     handleClose();
                   }}
                 >

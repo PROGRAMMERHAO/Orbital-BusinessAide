@@ -19,13 +19,14 @@ createMainTask = async (
   updateEmployees = async (employerName, workerArray) => {
     for (i = 0; i < workerArray.length; ++i) {
       employeeName = workerArray[i];
+      console.log(employeeName)
       // check if the employee is under that employer, if not return -1
       docRef = db
         .collection("employers")
         .doc(employerName)
         .collection("employees")
         .doc(employeeName);
-      docRef.get().then((doc) => {
+      await docRef.get().then((doc) => {
         if (doc.exists) {
           employeeRef = db.collection("employees").doc(employeeName);
           employeeRef.update({
@@ -42,7 +43,7 @@ createMainTask = async (
     }
   };
 
-  await updateEmployees(employerName, workerArray);
+  const result = await updateEmployees(employerName, workerArray);
 
   // send main task to employers > employerName > tasks
   await db
@@ -52,6 +53,8 @@ createMainTask = async (
     .doc(mainTaskName)
     .set(taskData);
   console.log("main task data created");
+  
+  return result;
 };
 
 createSubTask = async (
@@ -96,7 +99,7 @@ createSubTask = async (
     }
   };
 
-  await updateEmployees(employerName, workerArray);
+  const result = await updateEmployees(employerName, workerArray);
 
   db.collection("employers")
     .doc(employerName)
@@ -106,6 +109,8 @@ createSubTask = async (
     .doc(subTaskName)
     .set(taskData);
   console.log("sub task data created");
+
+  return result;
 };
 
 mainTaskProgress = async (mainTaskName, employerName) => {

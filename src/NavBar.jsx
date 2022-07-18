@@ -1,6 +1,6 @@
 import { Link, Route, Routes, BrowserRouter } from "react-router-dom";
 import SignInUser from "./components/signin/signin.js";
-import CreateForm from "./components/signup/signup.js";
+import CreateForm from "./components/signup/employeesignup.js";
 import Home from "./Home.js";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
@@ -11,6 +11,8 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import "./NavBar.css";
+import EmployerSignup from "./components/signup/employersignup.js";
+
 export default function ButtonAppBar() {
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -34,9 +36,17 @@ export default function ButtonAppBar() {
           <Button color="inherit">
             <Link
               style={{ textDecoration: "none", color: "white" }}
-              to="components/signup/signup"
+              to="components/signup/employersignup"
             >
-              Signup
+              Employer Signup
+            </Link>
+          </Button>
+          <Button color="inherit">
+            <Link
+              style={{ textDecoration: "none", color: "white" }}
+              to="components/signup/employeesignup"
+            >
+              Employee Signup
             </Link>
           </Button>
           <Button color="inherit">
@@ -50,9 +60,11 @@ export default function ButtonAppBar() {
           </Button>
         </Toolbar>
       </AppBar>
+      
       <Routes>
+        <Route path="/components/signup/employersignup" element={<EmployerSignup/>}/>
         <Route path="/" element={<Home />} />
-        <Route path="components/signup/signup" element={<CreateForm />} />
+        <Route path="components/signup/employeesignup" element={<CreateForm />} />
         <Route path="components/signin/signin" element={<SignInUser />} />
       </Routes>
     </Box>

@@ -8,6 +8,7 @@ admin.initializeApp({
 });
 var retriever = require("./retriever");
 var task = require("./task");
+var sender = require("./sender");
 // const retriever = require("./retriever.js");
 // const temp = retriever.getEmployeeData("blake charles");
 // var data;
@@ -28,11 +29,13 @@ app.get("/createMainTask", async (req, res) => {
   console.log(req.query.description);
   console.log(req.query.employer);
   console.log(req.query.people);
+  workerArr = req.query.people.split(",");
+  
   let x = await task.createMainTask(
     req.query.taskname,
     req.query.description,
     req.query.employer,
-    req.query.people
+    workerArr
   );
 });
 
@@ -41,13 +44,14 @@ app.get("/createSubTask", async (req, res) => {
   console.log(req.query.subTaskDesc);
   console.log(req.query.goal);
   console.log(req.query.mainTaskName);
+  workerArr = req.query.workerArray.split(",");
   let x = await task.createSubTask(
     req.query.subTaskName,
     req.query.subTaskDesc,
     req.query.goal,
     req.query.mainTaskName,
     req.query.employerName,
-    req.query.workerArray
+    workerArr
   );
 });
 
@@ -125,6 +129,47 @@ app.get("/completeSubTask", async (req, res) => {
     .completeSubTask(req.query.subTaskName, req.query.mainTaskName, req.query.employerName)
 });
 
+app.get("/sendPayroll", async (req, res) => {
+  console.log(req.query.employerName);
+  sender.sendPayroll(req.query.dailySalary, req.query.daysAttended, req.query.overtimeHourlyRate, req.query.overtimeHours, req.query.deductions, req.query.overallSalary, req.query.employeeName, req.query.employerName).then((ans) => {
+    // you need the then to wait for the result of the function
+    console.log(ans);
+    res.send(ans);
+  });
+});
+
+app.get("/SendEmployee", async (req, res) => {
+sender.sendEmployee(req.query.firstName, req.query.lastName,  
+  req.query.secretCode,
+  req.query.dob,
+  req.query.workExp,
+  req.query.location,
+  req.query.title,
+  req.query.phoneNum).then((ans) => {
+    // you need the then to wait for the result of the function
+    console.log(ans);
+    
+  });
+});
+
+app.get("/SendEmployer", async (req, res) => {
+  sender.sendEmployer(req.query.firstName, req.query.lastName,  
+    req.query.secretCode,
+  ).then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+      
+    });
+  });
+
+  app.get("/findUserType", async (req, res) => {
+    retriever.findUserType(req.query.email)
+      .then((ans) => {
+        // you need the then to wait for the result of the function
+        console.log(ans);
+        res.send(ans);
+      });
+  });
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, console.log(`Server started on port ${PORT}`));

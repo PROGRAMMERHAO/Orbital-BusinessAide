@@ -71,27 +71,11 @@ function Home() {
             </Button>
             <Button>
               <Link
-                style={{ textDecoration: "none", color: "white" }}
-                to="/viewemployees"
-              >
-                Employees
-              </Link>
-            </Button>
-            <Button>
-              <Link
                 
                 style={{ textDecoration: "none", color: "white" }}
                 to="/task/displaytask"
               >
                 View Tasks
-              </Link>
-            </Button>
-            <Button>
-              <Link
-                style={{ textDecoration: "none", color: "white" }}
-                to="/task/createtask"
-              >
-                Add Tasks
               </Link>
             </Button>
             <Button onClick={signOutWithGoogle} color="inherit">
@@ -117,4 +101,3 @@ function Home() {
 }
 
 export default Home;
-
