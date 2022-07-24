@@ -81,34 +81,46 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     onClose: PropTypes.func.isRequired,
   };
 const employeeCollectionRef = collection(db, "Employees");
-const Showpayroll = ({ getEmployeeId }) => {
-  let [employeenames,setEmployeenames] = useState([]);
+const Showpayroll = (props) => {
+  let [employeenames, setEmployeenames] = useState([]);
   const [rate, setRate] = useState(0);
   const [hourly, setHourly] = useState(0);
   const [days, setDays] = useState(0);
   const [overtime, setOvertime] = useState(0);
   const [deductions, setDeductions] = useState(0);
   const [overall, setOverall] = useState(0);
-  
+
   let feedback;
-    const handleClickOpen = () => {
-        setOpen(true);
-      };
-      const handleClose = () => {
-        setOpen(false);
-      };
-    
-    const [open, setOpen] = React.useState(false);
-    let totalsalary = 0;
-    const [total, setTotal] = useState(0);
-    const handleClick = () => {
-      setOpen(!open);
-    };
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const [open, setOpen] = React.useState(false);
+  let totalsalary = 0;
+  const [total, setTotal] = useState(0);
+  const handleClick = () => {
+    setOpen(!open);
+  };
   const [employees, setEmployees] = useState([]);
   useEffect(() => {
-    getEmployees();
+    getEmployees(props.name);
   }, []);
-  const sendPayroll = async (dailySalary, daysAttended, overtimeHourlyRate, overtimeHours, deductions, overallSalary, employeeName, employerName) => {
+  useEffect(() => {
+    console.log(employees);
+  }, [employees]);
+  const sendPayroll = async (
+    dailySalary,
+    daysAttended,
+    overtimeHourlyRate,
+    overtimeHours,
+    deductions,
+    overallSalary,
+    employeeName,
+    employerName
+  ) => {
     let call = "/sendPayroll/?";
     call = call + "dailySalary=" + dailySalary + "&";
     call = call + "daysAttended=" + daysAttended + "&";
@@ -116,62 +128,88 @@ const Showpayroll = ({ getEmployeeId }) => {
     call = call + "overtimeHours=" + overtimeHours + "&";
     call = call + "deductions=" + deductions + "&";
     call = call + "overallSalary=" + overallSalary + "&";
-    call = call + "employeeName=" +  employeeName + "&";
+    call = call + "employeeName=" + employeeName + "&";
     call = call + "employerName=" + employerName;
-    let  result = await (await fetch(call)).json();
+    let result = await (await fetch(call)).json();
     feedback = result;
     alert(feedback.reason);
   };
-  const getEmployees = async () => {
-    const data = await EmployeeDataService.getALLEmployee();
-    console.log(data.docs);
-    setEmployees(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    setEmployeenames(data.docs.map((doc) => ({ ...doc.data().firstName+" "+doc.data().lastName, id: doc.id })))
-    console.log(employees.length)
+  const getEmployees = async (employerName) => {
+    let call = "/getAllEmployeeSalary/?";
+    call = call + "employerName=" + employerName + "&";
+    let result = await (await fetch(call)).json();
+    console.log(result.body);
+    setEmployees(
+      result.body.map((doc) => ({
+        ...doc,
+        id: doc.name,
+      }))
+    );
+    setEmployeenames(
+      result.body.map((doc) => ({
+        ...doc.id,
+        id: doc.name,
+      }))
+    );
   };
-
-  useEffect(() => {
-    
-    
-  }, []);
-
 
   return (
     <List
-      sx={{ width: '100%', maxWidth: 1600, bgcolor: 'background.paper' }}
+      sx={{
+        width: "100%",
+        maxWidth: 1600,
+        bgcolor: "background.paper",
+      }}
       component="nav"
       aria-labelledby="nested-list-subheader"
       subheader={
         <ListSubheader component="div" id="nested-list-subheader">
-         Payroll for the Month
+          Payroll for the Month
         </ListSubheader>
       }
     >
-        <ListItemButton>
-    <ListItemIcon>
-      <SendIcon />
-    </ListItemIcon>
-    <ListItemText primary={employees.length===0? "loading..." : "Total salary for the month: "+ employees.map(element => Number(element.overallSalary)).reduce((a, b) => a + b,0)}/>
-  </ListItemButton>
-{employees.map((doc)=>{
-    console.log(doc.id)
-    const employeeName = doc.firstName+" "+doc.lastName;
-    return(
-        <Link
-        to={"/Individual/" + doc.id}
-        style={{ textDecoration: "none", color: "black" }}
-        key={doc.id}>
-    <ListItemButton key={doc.id}>
-       
-    <ListItemIcon>
-      <SendIcon />
-    </ListItemIcon>
-    <ListItemText primary={doc.firstName+" "+doc.lastName} secondary={"salary for the month: "+doc.overallSalary}/>
-  
-  </ListItemButton>
-  </Link>
-    )})}
-    </List>)
-}
+      <ListItemButton>
+        <ListItemIcon>
+          <SendIcon />
+        </ListItemIcon>
+        <ListItemText
+          primary={
+            employees.length === 0
+              ? "loading..."
+              : "Total salary for the month: " +
+                employees
+                  .map((element) => Number(element.overallSalary))
+                  .reduce((a, b) => a + b, 0)
+          }
+        />
+      </ListItemButton>
+      {employees.length === 0
+        ? ""
+        : employees.map((doc) => {
+            console.log(doc);
+            return (
+              <Link
+                to={"/Individual/" + doc.name}
+                style={{
+                  textDecoration: "none",
+                  color: "black",
+                }}
+                key={doc}
+              >
+                <ListItemButton key={doc.name}>
+                  <ListItemIcon>
+                    <SendIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={doc.name}
+                    secondary={"salary for the month: " + doc.overallSalary}
+                  />
+                </ListItemButton>
+              </Link>
+            );
+          })}
+    </List>
+  );
+};
 
 export default Showpayroll;

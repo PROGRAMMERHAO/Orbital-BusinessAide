@@ -24,9 +24,9 @@ import { useLocation } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { getDisplayName } from "@mui/utils";
 import handleSubmit from "./handlesubmit";
-import { Grid, TextField } from "@mui/material";
+import { Divider, Grid, List, ListItem, TextField } from "@mui/material";
 import CreateSubtask from "./createsubtask";
-
+import FullScreenDialog from "./viewfeedback";
 
 const auth = getAuth();
 const user = auth.currentUser;
@@ -39,6 +39,7 @@ const bull = (
 );
 
 export default function BasicCard(props) {
+  const [feedback, setFeedback] = useState([]);
   const [subtasks, setSubTasks] = useState([]);
   let subtasktemp = [];
   const [description, setDescription] = useState([]);
@@ -47,7 +48,7 @@ export default function BasicCard(props) {
   const [goal, setGoal] = useState([]);
   const [progress, setProgress] = useState([]);
   const [mainprogress, setMainProgress] = useState(0);
-  const [localProgress, setLocalProgress] = useState([])
+  const [localProgress, setLocalProgress] = useState([]);
   const [status, setStatus] = useState([]);
   const [mainstatus, setMainStatus] = useState([]);
   const [maindescription, setMainDescription] = useState([]);
@@ -57,7 +58,7 @@ export default function BasicCard(props) {
   const user = auth.currentUser;
   const name = user.fullname;
   var tempprogress = 0;
-  var progresstemp= [];
+  var progresstemp = [];
   let temp = 0;
   const [newValue, setnewValue] = useState(0);
   var value = 0;
@@ -65,79 +66,101 @@ export default function BasicCard(props) {
   function refreshPage() {
     window.location.reload(false);
   }
-  const mainTaskProgress = async (tasks, employerName) => {
+  const mainTaskProgress = async (tasks, email) => {
+    let call1 = "/findUserType/?";
+    call1 = call1 + "email=" + email;
+    let result1 = await (await fetch(call1)).json();
+    console.log(result1);
+    //setUsertype(result.body);
+    //setUsername(result.name);
+    username = result1.name;
     let call = "/mainTaskProgress/?";
     call = call + "tasks=" + tasks + "&";
-    call = call + "employerName=" + employerName;
-    let  result = await (await fetch(call)).json();
-    setMainProgress(result);
+    call = call + "employerName=" + username;
+    let result = await (await fetch(call)).json();
+    console.log(result);
+    setMainProgress(result.body);
     console.log(mainprogress);
   };
-  
- const calculateprogress = (subtasks, status, progress, goal) =>{
-  var subTaskProgress = 0;
-  var subTaskCounter = 0;
-  tempprogress = mainprogress;
- for (let i = 0; i< subtasks.length; i++ ) {
-  if (status[i] == "finished") {
-      subTaskProgress += 1;
-      subTaskCounter += 1;
-    } else {
-      subTaskProgress +=progress[i] / goal[i];
-      subTaskCounter += 1;
+
+  const calculateprogress = (subtasks, status, progress, goal) => {
+    var subTaskProgress = 0;
+    var subTaskCounter = 0;
+    tempprogress = mainprogress;
+    for (let i = 0; i < subtasks.length; i++) {
+      if (status[i] == "finished") {
+        subTaskProgress += 1;
+        subTaskCounter += 1;
+      } else {
+        subTaskProgress += progress[i] / goal[i];
+        subTaskCounter += 1;
+      }
     }
-  
- }
- tempprogress = (subTaskProgress / subTaskCounter);
-  if (tempprogress === 0) {
-    tempprogress = 0;
-  }
-  setMainProgress(tempprogress)
-}
+    tempprogress = subTaskProgress / subTaskCounter;
+    if (tempprogress === 0) {
+      tempprogress = 0;
+    }
+    setMainProgress(tempprogress);
+  };
+
+  var username;
 
   useEffect(() => {
-    const viewMainTask = async (mainTaskName, employerName) => {
+    const viewMainTask = async (mainTaskName, email) => {
+      let call1 = "/findUserType/?";
+      call1 = call1 + "email=" + email;
+      let result1 = await (await fetch(call1)).json();
+      console.log(result1);
+      //setUsertype(result.body);
+      //setUsername(result.name);
+      username = result1.name;
+      viewMainTaskFeedback(mainTaskName, username);
       let call = "/getMainTaskData/?";
       call = call + "mainTaskName=" + mainTaskName + "&";
-      call = call + "employerName=" + employerName;
+      call = call + "employerName=" + username;
       let result = await (await fetch(call)).json();
       console.log(result);
-      setMainDescription(result.description);
-      setMainStatus(result.status);
-      setSubTasks(result.subtasks);
-      setMainWorkers(result.workers);
-      subtasktemp = result.subtasks;
-      console.log(subtasktemp)
+      setMainDescription(result.body.description);
+      setMainStatus(result.body.status);
+      setSubTasks(result.body.subtasks);
+      setMainWorkers(result.body.workers);
+      subtasktemp = result.body.subtasks;
+      console.log(subtasktemp);
       for (let i = 0; i < subtasktemp.length; i++) {
-      let call = "/getSubTaskData/?";
-      call = call + "subTaskName=" + subtasktemp[i] + "&";
-      call = call + "mainTaskName=" + maintask + "&";
-      call = call + "employerName=" + "adam jerry";
-      let result = await (await fetch(call)).json();
-      console.log(result);
-      //setSubTasks((subtasks) => [...subtasks, result.subTaskName]);
-      setDescription((description) => [...description, result.description]);
-      setWorkers((workers) => [...workers, result.workers]);
-      setGoal((goal) => [...goal, result.goal]);
-      setProgress((progress) => [...progress, result.progress]);
-      setStatus((status) => [...status, result.status]);
-      console.log(subtasks);
+        let call = "/getSubTaskData/?";
+        call = call + "subTaskName=" + subtasktemp[i] + "&";
+        call = call + "mainTaskName=" + maintask + "&";
+        call = call + "employerName=" + username;
+        let result = await (await fetch(call)).json();
+        console.log(result);
+        //setSubTasks((subtasks) => [...subtasks, result.subTaskName]);
+        setDescription((description) => [
+          ...description,
+          result.body.description,
+        ]);
+        setWorkers((workers) => [...workers, result.body.workers]);
+        setGoal((goal) => [...goal, result.body.goal]);
+        setProgress((progress) => [...progress, result.body.progress]);
+        setStatus((status) => [...status, result.body.status]);
+        console.log(subtasks);
       }
     };
-  
-    viewMainTask(maintask, "adam jerry");
-    mainTaskProgress(maintask,"adam jerry")
+    if (user) {
+      viewMainTask(maintask, user.email);
+      mainTaskProgress(maintask, user.email);
+    }
   }, []);
 
-useEffect (()=> {
-  console.log(mainprogress);
-},[mainprogress])
+  useEffect(() => {
+    console.log(mainprogress);
+    console.log(mainworkers);
+  }, [mainprogress, mainworkers]);
 
   useEffect(() => {
     console.log(goal);
   }, [goal]);
 
-   /*useEffect(() => {
+  /*useEffect(() => {
     const viewSubTask = async (subTaskName, mainTaskName, employerName) => {
       let call = "/getSubTaskData/?";
       call = call + "subTaskName=" + subTaskName + "&";
@@ -161,20 +184,37 @@ useEffect (()=> {
     
   }, [maintask, subtasks]);*/
 
-  useEffect(()=>{
+  useEffect(() => {
     //progresstemp = progress;
     console.log(progress);
-  },[progress])
-  const subTaskProgress = async (subTaskName, value, mainTaskName, employerName, index) => {
+  }, [progress]);
+
+  const viewMainTaskFeedback = async (mainTaskName, employerName) => {
+    let call = "/viewMainTaskFeedback/?";
+    call = call + "mainTaskName=" + mainTaskName + "&";
+    call = call + "employerName=" + employerName;
+    let result = await (await fetch(call)).json();
+    console.log(result);
+    setFeedback(result.body);
+
+    //setProgress(progress[index]+1);
+  };
+  const subTaskProgress = async (
+    subTaskName,
+    value,
+    mainTaskName,
+    employerName,
+    index
+  ) => {
     let call = "/subTaskProgress/?";
     call = call + "subTaskName=" + subTaskName + "&";
     call = call + "value=" + value + "&";
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
     await (await fetch(call)).json();
-   
+
     //setProgress(progress[index]+1);
-  }
+  };
 
   const completeSubTask = async (subTaskName, mainTaskName, employerName) => {
     let call = "/completeSubTask/?";
@@ -182,20 +222,17 @@ useEffect (()=> {
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
     await (await fetch(call)).json();
-  }
+  };
 
   const completeMainTask = async (mainTaskName, employerName) => {
     let call = "/completeMainTask/?";
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
     await (await fetch(call)).json();
-  }
+  };
 
-  
- 
- 
   //subTaskProgress("hahahah",3, maintask, "adam jerry")
- 
+
   return (
     <Card sx={{ minWidth: 275 }}>
       <CardContent>
@@ -216,18 +253,45 @@ useEffect (()=> {
         </Typography>
         <Typography variant="h5" component="div">
           {mainstatus}
-          </Typography>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+        </Typography>
+        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
           Workers Allocated
         </Typography>
         <Typography variant="h5" component="div">
-          {mainworkers.length===0? "loading" : mainworkers.map((worker=>(worker+"  ")))}
-          </Typography>
-        <ProgressBar bgcolor={"#1976d2"} completed={mainprogress>1?100 : Math.round((mainprogress/1)*100)} />
-        <Button onClick={()=>{completeMainTask(maintask, "adam jerry"); refreshPage()}}>Mark as Finished</Button>
-        {mainworkers.length===0? <div>loading...</div>:<CreateSubtask maintask = {maintask} people = {mainworkers}/>}
-        <div style={{color:"white"}}>hahahah</div>
-        <Grid >
+          {mainworkers.length === 0
+            ? "loading"
+            : mainworkers.map((worker) => worker + "  ")}
+        </Typography>
+        <ProgressBar
+          bgcolor={"#1976d2"}
+          completed={
+            mainprogress > 1 ? 100 : Math.round((mainprogress / 1) * 100)
+          }
+        />
+        <Button
+          onClick={() => {
+            completeMainTask(maintask, username);
+            refreshPage();
+          }}
+        >
+          Mark as Finished
+        </Button>
+        {mainworkers.length === 0 ? (
+          <div>loading...</div>
+        ) : (
+          <div>
+            <List>
+              <ListItem>
+                <CreateSubtask maintask={maintask} people={mainworkers} />
+              </ListItem>
+              <ListItem>
+                <FullScreenDialog feedback={feedback} />
+              </ListItem>
+            </List>
+          </div>
+        )}
+        <div style={{ color: "white" }}>hahahah</div>
+        <Grid>
           {subtasks.map((task, index) => {
             return (
               <Accordion>
@@ -243,75 +307,101 @@ useEffect (()=> {
                     <div>Task Description: {description[index]}</div>
                     <div>workers allocated: {workers[index]}</div>
                     <div>goal: {goal[index]}</div>
-                    
+
                     <div>
                       {"progress"}
                       <ProgressBar
                         bgcolor={"#6a1b9a"}
-                        completed={((progress[index] / goal[index]) * 100>= 100) ? 100 :progress[index]/goal[index]*100}
+                        completed={
+                          (progress[index] / goal[index]) * 100 >= 100
+                            ? 100
+                            : (progress[index] / goal[index]) * 100
+                        }
                       ></ProgressBar>
                     </div>
                     <div>
-                    <TextField
-              value={Number(newValue)}
-  
-              type="text" 
-              margin="normal"
-              required
-              fullWidth
-            
-              label="Increase New Progress by"
-              
-              
-              autoFocus
-              onChange={(e) => {setnewValue(e.target.value)}}
-            />
-           
-                    <Button onClick={()=>{setProgress(existingItems => {
-                        return [
-                        ...existingItems.slice(0, index),
-                         existingItems[index]+Number(newValue),
-                        ...existingItems.slice(index + 1),
-                        ]
-                    }); 
-                     
-                     subTaskProgress(task, newValue, maintask,"adam jerry", index); 
-                     progresstemp = progress;
-                     progresstemp[index] += Number(newValue); 
-                     {if (progresstemp[index]>=goal[index]) {
-                     
-                      setStatus(existingItems => {
-                      return [
-                      ...existingItems.slice(0, index),
-                        "finished",
-                      ...existingItems.slice(index + 1),
-                      ]
-                    });
-                   
-                      
-                  }}
-                     calculateprogress(subtasks, status, progresstemp, goal);
-                     setMainProgress(tempprogress);
-                     console.log(tempprogress);
-                    // mainTaskProgress(maintask, "adam jerry")
-                    }}>Increase Progress</Button>
+                      <TextField
+                        value={Number(newValue)}
+                        type="text"
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Increase New Progress by"
+                        autoFocus
+                        onChange={(e) => {
+                          setnewValue(e.target.value);
+                        }}
+                      />
+
+                      <Button
+                        onClick={() => {
+                          setProgress((existingItems) => {
+                            return [
+                              ...existingItems.slice(0, index),
+                              existingItems[index] + Number(newValue),
+                              ...existingItems.slice(index + 1),
+                            ];
+                          });
+
+                          subTaskProgress(
+                            task,
+                            newValue,
+                            maintask,
+                            username,
+                            index
+                          );
+                          progresstemp = progress;
+                          progresstemp[index] += Number(newValue);
+                          {
+                            if (progresstemp[index] >= goal[index]) {
+                              setStatus((existingItems) => {
+                                return [
+                                  ...existingItems.slice(0, index),
+                                  "finished",
+                                  ...existingItems.slice(index + 1),
+                                ];
+                              });
+                            }
+                          }
+                          calculateprogress(
+                            subtasks,
+                            status,
+                            progresstemp,
+                            goal
+                          );
+                          setMainProgress(tempprogress);
+                          console.log(tempprogress);
+
+                          // mainTaskProgress(maintask, "adam jerry")
+                        }}
+                      >
+                        Increase Progress
+                      </Button>
                     </div>
                     <div>status: {status[index]}</div>
                   </Typography>
-                  <Button onClick={()=>{completeSubTask(task, maintask, "adam jerry");completeMainTask(maintask, "adam jerry"); refreshPage(); refreshPage();
-                setStatus(existingItems => {
-                      return [
-                      ...existingItems.slice(0, index),
-                        "finished",
-                      ...existingItems.slice(index + 1),
-                      ]})}}>Mark as Finished</Button>
+                  <Button
+                    onClick={() => {
+                      completeSubTask(task, maintask, username);
+                      completeMainTask(maintask, username);
+                      refreshPage();
+                      refreshPage();
+                      setStatus((existingItems) => {
+                        return [
+                          ...existingItems.slice(0, index),
+                          "finished",
+                          ...existingItems.slice(index + 1),
+                        ];
+                      });
+                    }}
+                  >
+                    Mark as Finished
+                  </Button>
                 </AccordionDetails>
               </Accordion>
             );
           })}
-          
         </Grid>
-        
       </CardContent>
       <CardActions></CardActions>
     </Card>

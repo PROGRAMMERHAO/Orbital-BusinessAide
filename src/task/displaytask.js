@@ -16,6 +16,7 @@ import CreateSubtask from "./createsubtask";
 import TaskDataService from "./taskserver";
 import { useState } from "react";
 import { useEffect } from "react";
+import { useAuth } from "../useAuth";
 
 const bull = (
   <Box
@@ -26,94 +27,105 @@ const bull = (
 
 export default function OutlinedCard() {
   window.onload = function() {
-    if(!window.location.hash) {
-        window.location = window.location + '#loaded';
-        window.location.reload();
+    if (!window.location.hash) {
+      window.location = window.location + "#loaded";
+      window.location.reload();
     }
-}
+  };
+
   const [tasks, setTasks] = useState([]);
   const [progress, setProgress] = useState([]);
-  const refreshPage = ()=>{
+  const refreshPage = () => {
     window.location.reload();
- }
- 
+  };
+  var username;
   var task = [];
+  const { user } = useAuth();
+  const FindUserType = async (email) => {
+    let call = "/findUserType/?";
+    call = call + "email=" + email;
+    let result = await (await fetch(call)).json();
+    console.log(result);
+    //setUsertype(result.body);
+    //setUsername(result.name);
+    username = result.name;
+    let call2 = "/displayTask/?";
+    call2 = call2 + "employerName=" + username;
+    let result2 = await (await fetch(call2)).json();
+    for (let i = 0; i < result2.body.length; i++) {
+      task[i] = result2.body[i];
+      setTasks((tasks) => [...tasks, result2.body[i]]);
+
+      //try {mainTaskProgress(task[i], "adam jerry" )
+      //} catch (err) {
+      //console.error(err)
+    }
+    for (let i = 0; i < task.length; i++) {
+      let calltask = "/mainTaskProgress/?";
+      calltask = calltask + "tasks=" + task[i] + "&";
+      calltask = calltask + "employerName=" + username;
+      let resulttask = await (await fetch(calltask)).json();
+      setProgress((progress) => [...progress, resulttask.body]);
+    }
+    console.log(progress);
+  };
+
   const displayTask = async (employerName) => {
-   let call = "/displayTask/?";
+    let call = "/displayTask/?";
     call = call + "employerName=" + employerName;
     let result = await (await fetch(call)).json();
-  
-   for (let i = 0; i < result.length; i++) {
-      task[i] = result[i]
-      setTasks((tasks) => [...tasks, result[i]]);
-      
-     
+    for (let i = 0; i < result.body.length; i++) {
+      task[i] = result.body[i];
+      setTasks((tasks) => [...tasks, result.body[i]]);
+
       //try {mainTaskProgress(task[i], "adam jerry" )
-   //} catch (err) {
-   
-    //console.error(err)
-   }
-
-   for (let i = 0 ; i < task.length; i++ ) {
-
-   
-   let calltask = "/mainTaskProgress/?";
+      //} catch (err) {
+      //console.error(err)
+    }
+    for (let i = 0; i < task.length; i++) {
+      let calltask = "/mainTaskProgress/?";
       calltask = calltask + "tasks=" + task[i] + "&";
       calltask = calltask + "employerName=" + employerName;
-      let  resulttask = await (await fetch(calltask)).json();
-      setProgress((progress) => [...progress, resulttask]);
-    
-        
-   
-   }
-    console.log(progress)
-  }; 
-  const mainTaskProgress = async (mainTaskName, employerName) => {
+      let resulttask = await (await fetch(calltask)).json();
+      setProgress((progress) => [...progress, resulttask.body]);
+    }
+    console.log(progress);
+  };
+  /* const mainTaskProgress = async (mainTaskName, employerName) => {
     let call = "/mainTaskProgress/?";
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
     let  result = await (await fetch(call)).json();
     setProgress((progress) => [...progress, result]);
   };
-  
-  
- 
-  
+ */
+
   useEffect(() => {
-    
-    displayTask("adam jerry");
-    
-  
+    if (user) {
+      FindUserType(user.email);
+    }
   }, []);
 
-  
-
   //useEffect(() => {
-   //console.log(task.length);
-    //for (let i = 0; i < task.length; i++) {
-     // mainTaskProgress("Cook Lunch", "adam jerry");
-    //}
+  //console.log(task.length);
+  //for (let i = 0; i < task.length; i++) {
+  // mainTaskProgress("Cook Lunch", "adam jerry");
+  //}
   //}, []);
 
- //useEffect(()=>{
-   // console.log(tasks);
-   
-   //}, [tasks]);
+  //useEffect(()=>{
+  // console.log(tasks);
 
-  useEffect(()=>{
-   console.log(tasks);
-   console.log(progress);
-   }, [tasks]);
+  //}, [tasks]);
 
-  
-  
+  useEffect(() => {
+    console.log(tasks);
+    console.log(progress);
+  }, [tasks]);
 
-  
-if (tasks.length === null) {
-  return (
-    <div>loading...</div>
-  )
-} 
+  if (tasks.length === null) {
+    return <div>loading...</div>;
+  }
   return (
     <div>
       <h1>Task Page</h1>
@@ -122,42 +134,67 @@ if (tasks.length === null) {
         container
         rowSpacing={20}
         columns={12}
-        columnSpacing={{ xs: 2, sm: 2, md: 3 }}
+        columnSpacing={{
+          xs: 2,
+          sm: 2,
+          md: 3,
+        }}
       >
-        {tasks===[]? <h2>loading...</h2> :
-        tasks.map((doc,index) => {
-          return (
-            <Grid item xs={3}>
-              <Card sx={{ maxWidth: 345 }}>
-                <CardContent>
-                  <Typography
-                    sx={{ fontSize: 20 }}
-                    color="text.secondary"
-                    gutterBottom
-                  >
-                    Current Task
-                  </Typography>
-                  <Typography variant="h5" component="div">
-                    {doc? doc : "loading"}
-                  </Typography>
-                  <Typography variant="body2">
-                    {(progress[index])?  <ProgressBar bgcolor={"#6a1b9a"} completed={Math.round((progress[index]/1)*100)} /> : <ProgressBar bgcolor={"#6a1b9a"} completed={0} />}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Link
-                    to="/task/singletask"
-                    state={doc}
-                    style={{ textDecoration: "none", color: "blue" }}
-                  >
-                    View Task
-                  </Link>
-                  <span style={{ color: "white" }}>hahahaha</span>
-                </CardActions>
-              </Card>
-            </Grid>
-          );
-        })}
+        {tasks === [] ? (
+          <h2>loading...</h2>
+        ) : (
+          tasks.map((doc, index) => {
+            return (
+              <Grid item xs={3}>
+                <Card sx={{ maxWidth: 345 }}>
+                  <CardContent>
+                    <Typography
+                      sx={{
+                        fontSize: 20,
+                      }}
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      Current Task
+                    </Typography>
+                    <Typography variant="h5" component="div">
+                      {doc ? doc : "loading"}
+                    </Typography>
+                    <Typography variant="body2">
+                      {progress[index] ? (
+                        <ProgressBar
+                          bgcolor={"#6a1b9a"}
+                          completed={Math.round((progress[index] / 1) * 100)}
+                        />
+                      ) : (
+                        <ProgressBar bgcolor={"#6a1b9a"} completed={0} />
+                      )}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Link
+                      to="/task/singletask"
+                      state={doc}
+                      style={{
+                        textDecoration: "none",
+                        color: "blue",
+                      }}
+                    >
+                      View Task
+                    </Link>
+                    <span
+                      style={{
+                        color: "white",
+                      }}
+                    >
+                      hahahaha
+                    </span>
+                  </CardActions>
+                </Card>
+              </Grid>
+            );
+          })
+        )}
       </Grid>
     </div>
   );

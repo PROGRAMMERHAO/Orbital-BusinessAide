@@ -95,39 +95,42 @@ else if (username==="") {
     }
    
     else{
-    // Create a new user with Firebase
-    let call = "/SendEmployer/?";
-    call = call + "firstName=" + firstName + "&";
-    call = call + "lastName=" + lastName + "&";
-    call = call + "secretCode=" + secretcode;
-   await registerWithEmailAndPassword(firstName+" "+lastName, username, password)
-      .then((userAuth) => {
-        // Update the newly created user with a display name and a picture
-        updateProfile(userAuth.user, {
-          displayName: firstName+" "+lastName,
-        })
-          .then(
-            // Dispatch the user information for persistence in the redux state
-            dispatch(
-              login({
-                email: userAuth.user.email,
-                uid: userAuth.user.uid,
-                displayName: firstName+" "+lastName,
-              })
-            )
+          // Create a new user with Firebase
+          let call = "/SendEmployer/?";
+          call = call + "firstName=" + firstName + "&";
+          call = call + "lastName=" + lastName + "&";
+          call = call + "secretCode=" + secretcode;
+          await registerWithEmailAndPassword(
+            firstName + " " + lastName,
+            username,
+            password
           )
-          .catch((error) => {
-            console.log(error);
-            setError(error);
-          });
-      })
-      .catch((err) => {
-        alert(err);
-      });
-   navigate("/");
-      await (await fetch(call)).json();
-    
-    }
+            .then((userAuth) => {
+              // Update the newly created user with a display name and a picture
+              updateProfile(userAuth.user, {
+                displayName: firstName + " " + lastName,
+              })
+                .then(
+                  // Dispatch the user information for persistence in the redux state
+                  dispatch(
+                    login({
+                      email: userAuth.user.email,
+                      uid: userAuth.user.uid,
+                      displayName: firstName + " " + lastName,
+                    })
+                  )
+                )
+                .catch((error) => {
+                  console.log(error);
+                  setError(error);
+                });
+            })
+            .catch((err) => {
+              alert(err);
+            });
+          navigate("/");
+          await (await fetch(call)).json();
+        }
     
   };
     

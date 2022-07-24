@@ -40,7 +40,7 @@ export default function Cards(props) {
             />
             <CardContent>
               <Typography gutterBottom variant="h5" component="div">
-                {props.Firstname} {props.Lastname}
+                {props.fullname}
               </Typography>
               <Typography variant="body2" color="text.secondary"></Typography>
             </CardContent>

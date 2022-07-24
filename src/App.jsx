@@ -16,17 +16,42 @@ import {
 } from "firebase/firestore";
 import { config as firebaseConfig } from "./config";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 
 //import HomePage from "./components/signin/mainpage";
+import EmployeeBar from "./employees/employeenavbar";
 
 export default function App() {
-  useEffect(() => {}, []);
+  const FindUserType = async (email) => {
+    let call = "/findUserType/?";
+    call = call + "email=" + email;
+    let result = await (await fetch(call)).json();
+    console.log(result);
+    setUsertype(result.body);
+    setUsername(result.name);
+  };
+
   const { user } = useAuth();
+  const [usertype, setUsertype] = useState();
+  const [username, setUsername] = useState();
   if (user) {
     console.log(user.email);
+    FindUserType(user.email);
   } else {
   }
-  return <div className="App">{user ? <Home /> : <ButtonAppBar />}</div>;
+  return (
+    <div className="App">
+      {user ? (
+        usertype == "employer" ? (
+          <Home name={username} />
+        ) : (
+          <EmployeeBar name={username} />
+        )
+      ) : (
+        <ButtonAppBar />
+      )}
+    </div>
+  );
 }
 
 //(docs&&docs.docs[0].metadata._document.data.value.mapValue.fields.position.stringValue==="employee"? <div>hello</div>:

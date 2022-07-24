@@ -13,10 +13,9 @@ import { useEffect } from "react";
 import { db } from "./firebaseini";
 import { useState } from "react";
 import Cards from "./cards";
+import { useAuth } from "./useAuth";
 import { Routes, Route } from "react-router-dom";
 import EmployeeDataService from "./employeeserver";
-
-
 import {
   collection,
   getDocs,
@@ -35,15 +34,25 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 const EmployeesList = ({ getEmployeeId }) => {
+  const { user } = useAuth();
   const [employees, setEmployees] = useState([]);
+  const [name, setName] = useState([]);
   useEffect(() => {
     getEmployees();
   }, []);
-
   const getEmployees = async () => {
-    const data = await EmployeeDataService.getALLEmployee();
-    console.log(data.docs);
-    setEmployees(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    if (user) {
+      let call1 = "/findUserType/?";
+      console.log(user.email);
+      call1 = call1 + "email=" + user.email;
+      let result = await (await fetch(call1)).json();
+      console.log(result.name);
+      let call = "/getAllEmployeeSalary/?";
+      setName(result.name);
+      call = call + "employerName=" + result.name;
+      let returned = await (await fetch(call)).json();
+      setEmployees(returned.body.map((doc) => ({ ...doc, id: doc })));
+    }
   };
   /* 
   const deleteHandler = async (id) => {
@@ -70,19 +79,18 @@ const EmployeesList = ({ getEmployeeId }) => {
         {employees.map((doc, index) => {
           console.log(doc);
           return (
-            <Grid item xs={3} key={doc.id}>
+            <Grid item xs={3} key={doc.name}>
               <Link
-                to={"/Individual/" + doc.id}
+                to={"/Individual/" + doc.name}
                 style={{ textDecoration: "none", color: "black" }}
-                key={doc.id}
+                key={doc.name}
               >
                 <Cards
-                  key={doc.id}
-                  id={doc.id}
+                  key={doc.name}
+                  id={doc.name}
                   index={index + 1}
-                  Firstname={doc.firstName}
-                  Lastname={doc.lastName}
-                  employer={doc.employer}
+                  fullname={doc.name}
+                  employer={name}
                 />
               </Link>
             </Grid>

@@ -78,6 +78,7 @@ export default function CreateSubtask(props) {
   };
   const [personName, setPersonName] = React.useState([]);
   const names = props.people;
+  console.log(names);
   const theme = useTheme();
   function getStyles(name, personName, theme) {
     return {
@@ -87,7 +88,7 @@ export default function CreateSubtask(props) {
           : theme.typography.fontWeightMedium,
     };
   }
- 
+
   function refreshPage() {
     window.location.reload(false);
   }
@@ -103,11 +104,12 @@ export default function CreateSubtask(props) {
     } = event;
     setPersonName(
       // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
+      typeof value === "string" ? value.split(",") : value
     );
+    console.log(personName);
   };
   let localerror = -2;
-  
+
   const [feedback, setFeedback] = useState(-2);
   const [open, setOpen] = React.useState(false);
   const [task, setTask] = useState();
@@ -115,7 +117,7 @@ export default function CreateSubtask(props) {
   const [description, setDescription] = useState();
   const [employer, setEmployer] = useState();
   const [goal, setGoal] = useState();
- 
+
   const maintask = props.maintask;
 
   const subtaskSubmit = async (
@@ -126,6 +128,7 @@ export default function CreateSubtask(props) {
     employerName,
     workerArray
   ) => {
+    console.log(workerArray);
     let call = "/createSubTask/?";
     call = call + "subTaskName=" + subTaskName + "&"; // do this for each parameter you want to send
     call = call + "subTaskDesc=" + subTaskDesc + "&";
@@ -136,21 +139,22 @@ export default function CreateSubtask(props) {
     let result = await (await fetch(call)).json();
     setFeedback(result);
     localerror = result;
-    
-
   };
   //useEffect(()=>{
-    //console.log(props.people)
-    //setNames(props.people);
- // },[])
+  //console.log(props.people)
+  //setNames(props.people);
+  // },[])
   return (
     <div>
       <span style={{ color: "white" }}> hahahahahahaa </span>
-      <Button variant="outlined" onClick={handleClickOpen} style={{
-            position: "absolute",
-            left:700,
-            
-          }}>
+      <Button
+        variant="outlined"
+        onClick={handleClickOpen}
+        style={{
+          position: "absolute",
+          left: 700,
+        }}
+      >
         New Subtask
       </Button>
       <BootstrapDialog
@@ -202,28 +206,33 @@ export default function CreateSubtask(props) {
               autoFocus
               onChange={(e) => setEmployer(e.target.value)}
             />
-            <FormControl  required fullwidth sx={{ml:0, mt:2, width: 568 }}>
-        <InputLabel id="demo-multiple-name-label">Employees Assigned</InputLabel>
-        <Select
-          labelId="demo-multiple-name-label"
-          id="demo-multiple-name"
-          multiple
-          value={personName}
-          onChange={handleChange}
-          input={<OutlinedInput label="Name" />}
-          MenuProps={MenuProps}
-        >  
-          {names.length===0? "loading" :names.map((name) => (
-            <MenuItem
-              key={name}
-              value={name}
-              style={getStyles(name, personName, theme)}
-            >
-              {name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+            <FormControl required fullwidth sx={{ ml: 0, mt: 2, width: 568 }}>
+              <InputLabel id="demo-multiple-name-label">
+                Employees Assigned
+              </InputLabel>
+              <Select
+                labelId="demo-multiple-name-label"
+                id="demo-multiple-name"
+                multiple
+                value={personName}
+                onChange={handleChange}
+                input={<OutlinedInput label="Name" />}
+                MenuProps={MenuProps}
+              >
+                {names.length === 0
+                  ? "loading"
+                  : names.map((name) => (
+                      <MenuItem
+                        key={name}
+                        value={name}
+                        style={getStyles(name, personName, theme)}
+                      >
+                        {name}
+                      </MenuItem>
+                    ))}
+              </Select>
+            </FormControl>
+            {console.log(personName)}
             <TextField
               value={goal}
               margin="normal"
@@ -240,17 +249,25 @@ export default function CreateSubtask(props) {
           <Button
             autoFocus
             onClick={() => {
-
-              task===undefined||description===undefined||goal===undefined||employer===[]||personName===undefined? alert("please complete all required fields") : subtaskSubmit(
-                task,
-                description,
-                goal,
-                maintask,
-                employer,
-                personName
-              );
+              task === undefined ||
+              description === undefined ||
+              goal === undefined ||
+              employer === [] ||
+              personName === undefined
+                ? alert("please complete all required fields")
+                : subtaskSubmit(
+                    task,
+                    description,
+                    goal,
+                    maintask,
+                    employer,
+                    personName
+                  );
+              console.log(personName);
               console.log(feedback);
-              feedback ===-1? alert("the employee is not found"): console.log("subtask added");
+              feedback === -1
+                ? alert("the employee is not found")
+                : console.log("subtask added");
               handleClose();
               refreshPage();
             }}

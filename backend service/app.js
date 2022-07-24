@@ -9,6 +9,7 @@ admin.initializeApp({
 var retriever = require("./retriever");
 var task = require("./task");
 var sender = require("./sender");
+var feedback = require("./feedback");
 // const retriever = require("./retriever.js");
 // const temp = retriever.getEmployeeData("blake charles");
 // var data;
@@ -25,19 +26,27 @@ app.get("/getEmployee", (req, res) => {
 });
 
 app.get("/createMainTask", async (req, res) => {
-  console.log(req.query.taskname);
-  console.log(req.query.description);
-  console.log(req.query.employer);
-  console.log(req.query.people);
-  workerArr = req.query.people.split(",");
-  
-  let x = await task.createMainTask(
-    req.query.taskname,
-    req.query.description,
-    req.query.employer,
-    workerArr
-  );
-});
+                                                 console.log(
+                                                   req.query.taskname
+                                                 );
+                                                 console.log(
+                                                   req.query.description
+                                                 );
+                                                 console.log(
+                                                   req.query.employer
+                                                 );
+                                                 console.log(req.query.people);
+                                                 workerArr = req.query.people.split(
+                                                   ","
+                                                 );
+
+                                                 let x = await task.createMainTask(
+                                                   req.query.taskname,
+                                                   req.query.description,
+                                                   req.query.employer,
+                                                   workerArr
+                                                 );
+                                               });
 
 app.get("/createSubTask", async (req, res) => {
   console.log(req.query.subTaskName);
@@ -58,6 +67,25 @@ app.get("/createSubTask", async (req, res) => {
 app.get("/displayTask", async (req, res) => {
   console.log(req.query.employerName);
   retriever.getAllTaskData(req.query.employerName).then((ans) => {
+    // you need the then to wait for the result of the function
+    console.log(ans);
+    res.send(ans);
+  });
+});
+
+app.get("/viewMainTaskFeedback", async (req, res) => {
+  console.log(req.query.employerName);
+  feedback
+    .viewMainTaskFeedback(req.query.mainTaskName, req.query.employerName)
+    .then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+      res.send(ans);
+    });
+});
+app.get("/displayEmployeeTask", async (req, res) => {
+  console.log(req.query.employeeName);
+  retriever.getAllEmployeeTaskData(req.query.employeeName).then((ans) => {
     // you need the then to wait for the result of the function
     console.log(ans);
     res.send(ans);
@@ -105,8 +133,47 @@ app.get("/updateSubTaskProgress", async (req, res) => {
 });
 
 app.get("/mainTaskProgress", async (req, res) => {
-  task
-    .mainTaskProgress(req.query.tasks, req.query.employerName)
+  task.mainTaskProgress(req.query.tasks, req.query.employerName).then((ans) => {
+    // you need the then to wait for the result of the function
+    console.log(ans);
+    res.send(ans);
+  });
+});
+
+app.get("/subTaskProgress", async (req, res) => {
+  task.progressSubTask(
+    req.query.subTaskName,
+    req.query.value,
+    req.query.mainTaskName,
+    req.query.employerName
+  );
+});
+
+app.get("/completeMainTask", async (req, res) => {
+  task.completeMainTask(req.query.mainTaskName, req.query.employerName);
+});
+
+app.get("/completeSubTask", async (req, res) => {
+  task.completeSubTask(
+    req.query.subTaskName,
+    req.query.mainTaskName,
+    req.query.employerName
+  );
+});
+
+app.get("/sendPayroll", async (req, res) => {
+  console.log(req.query.employerName);
+  sender
+    .sendPayroll(
+      req.query.dailySalary,
+      req.query.daysAttended,
+      req.query.overtimeHourlyRate,
+      req.query.overtimeHours,
+      req.query.deductions,
+      req.query.overallSalary,
+      req.query.employeeName,
+      req.query.employerName
+    )
     .then((ans) => {
       // you need the then to wait for the result of the function
       console.log(ans);
@@ -114,53 +181,40 @@ app.get("/mainTaskProgress", async (req, res) => {
     });
 });
 
-app.get("/subTaskProgress", async (req, res) => {
-  task
-    .progressSubTask(req.query.subTaskName, req.query.value, req.query.mainTaskName, req.query.employerName)
+app.get("/SendEmployee", async (req, res) => {
+  sender
+    .sendEmployee(
+      req.query.firstName,
+      req.query.lastName,
+      req.query.secretCode,
+      req.query.dob,
+      req.query.workExp,
+      req.query.location,
+      req.query.title,
+      req.query.phoneNum
+    )
+    .then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+    });
 });
 
-app.get("/completeMainTask", async (req, res) => {
-  task
-    .completeMainTask(req.query.mainTaskName, req.query.employerName)
+app.get("/SendEmployer", async (req, res) => {
+  sender
+    .sendEmployer(req.query.firstName, req.query.lastName, req.query.secretCode)
+    .then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+    });
 });
 
-app.get("/completeSubTask", async (req, res) => {
-  task
-    .completeSubTask(req.query.subTaskName, req.query.mainTaskName, req.query.employerName)
-});
-
-app.get("/sendPayroll", async (req, res) => {
-  console.log(req.query.employerName);
-  sender.sendPayroll(req.query.dailySalary, req.query.daysAttended, req.query.overtimeHourlyRate, req.query.overtimeHours, req.query.deductions, req.query.overallSalary, req.query.employeeName, req.query.employerName).then((ans) => {
+app.get("/getAllEmployeeSalary", async (req, res) => {
+  retriever.getAllEmployeeSalary(req.query.employerName).then((ans) => {
     // you need the then to wait for the result of the function
     console.log(ans);
     res.send(ans);
   });
 });
-
-app.get("/SendEmployee", async (req, res) => {
-sender.sendEmployee(req.query.firstName, req.query.lastName,  
-  req.query.secretCode,
-  req.query.dob,
-  req.query.workExp,
-  req.query.location,
-  req.query.title,
-  req.query.phoneNum).then((ans) => {
-    // you need the then to wait for the result of the function
-    console.log(ans);
-    
-  });
-});
-
-app.get("/SendEmployer", async (req, res) => {
-  sender.sendEmployer(req.query.firstName, req.query.lastName,  
-    req.query.secretCode,
-  ).then((ans) => {
-      // you need the then to wait for the result of the function
-      console.log(ans);
-      
-    });
-  });
 
   app.get("/findUserType", async (req, res) => {
     retriever.findUserType(req.query.email)
