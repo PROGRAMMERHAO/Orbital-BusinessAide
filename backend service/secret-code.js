@@ -103,4 +103,6 @@ findEmployer = async (secretCode) => {
   return employerName;
 };
 
+
+
 module.exports = { make, dupeCheck, findEmployer };

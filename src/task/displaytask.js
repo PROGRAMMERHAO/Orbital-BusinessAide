@@ -41,6 +41,7 @@ export default function OutlinedCard() {
   var username;
   var task = [];
   const { user } = useAuth();
+  const [employerName, setEmployername] = useState();
   const FindUserType = async (email) => {
     let call = "/findUserType/?";
     call = call + "email=" + email;
@@ -49,6 +50,7 @@ export default function OutlinedCard() {
     //setUsertype(result.body);
     //setUsername(result.name);
     username = result.name;
+    setEmployername(result.name);
     let call2 = "/displayTask/?";
     call2 = call2 + "employerName=" + username;
     let result2 = await (await fetch(call2)).json();

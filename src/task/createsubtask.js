@@ -25,6 +25,7 @@ import { useTheme } from '@mui/material/styles';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { useEffect } from "react";
+import { useAuth } from "../useAuth";
 //import subtaskSubmit from "./subtasksubmit";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -65,7 +66,12 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-export default function CreateSubtask(props) {
+export default function CreateSubtask({
+  setIsupdated,
+  isUpdated,
+  maintask,
+  people,
+}) {
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
   const MenuProps = {
@@ -77,7 +83,7 @@ export default function CreateSubtask(props) {
     },
   };
   const [personName, setPersonName] = React.useState([]);
-  const names = props.people;
+  const names = people;
   console.log(names);
   const theme = useTheme();
   function getStyles(name, personName, theme) {
@@ -113,13 +119,25 @@ export default function CreateSubtask(props) {
   const [feedback, setFeedback] = useState(-2);
   const [open, setOpen] = React.useState(false);
   const [task, setTask] = useState();
-  const [people, setPeople] = useState([]);
   const [description, setDescription] = useState();
-  const [employer, setEmployer] = useState();
   const [goal, setGoal] = useState();
+  const [employername, setEmployername] = useState();
+  const { user } = useAuth();
+  const FindUserType = async (email) => {
+    let call = "/findUserType/?";
+    call = call + "email=" + email;
+    let result = await (await fetch(call)).json();
+    console.log(result);
+    //setUsertype(result.body);
+    //setUsername(result.name);
+    setEmployername(result.name);
+  };
 
-  const maintask = props.maintask;
-
+  useEffect(() => {
+    if (user) {
+      FindUserType(user.email);
+    }
+  }, []);
   const subtaskSubmit = async (
     subTaskName,
     subTaskDesc,
@@ -128,6 +146,11 @@ export default function CreateSubtask(props) {
     employerName,
     workerArray
   ) => {
+    if (!isUpdated) {
+      setIsupdated(true);
+    } else {
+      setIsupdated(false);
+    }
     console.log(workerArray);
     let call = "/createSubTask/?";
     call = call + "subTaskName=" + subTaskName + "&"; // do this for each parameter you want to send
@@ -152,7 +175,7 @@ export default function CreateSubtask(props) {
         onClick={handleClickOpen}
         style={{
           position: "absolute",
-          left: 700,
+          left: 633,
         }}
       >
         New Subtask
@@ -194,18 +217,6 @@ export default function CreateSubtask(props) {
               autoFocus
               onChange={(e) => setDescription(e.target.value)}
             />
-            <TextField
-              value={employer}
-              margin="normal"
-              required
-              fullWidth
-              id="employer"
-              label="Employer's Name"
-              name="employer"
-              autoComplete="employer"
-              autoFocus
-              onChange={(e) => setEmployer(e.target.value)}
-            />
             <FormControl required fullwidth sx={{ ml: 0, mt: 2, width: 568 }}>
               <InputLabel id="demo-multiple-name-label">
                 Employees Assigned
@@ -234,14 +245,22 @@ export default function CreateSubtask(props) {
             </FormControl>
             {console.log(personName)}
             <TextField
+              InputProps={{
+                inputProps: { min: 1 },
+              }}
               value={goal}
+              type="number"
               margin="normal"
               required
               fullWidth
               name="goal"
               label="Task Goal"
               id="goal"
-              onChange={(e) => setGoal(e.target.value)}
+              onChange={(e) =>
+                e.target.value > 0
+                  ? setGoal(e.target.value)
+                  : alert("please enter a positive integer")
+              }
             />
           </Box>
         </DialogContent>
@@ -252,7 +271,7 @@ export default function CreateSubtask(props) {
               task === undefined ||
               description === undefined ||
               goal === undefined ||
-              employer === [] ||
+              employername === undefined ||
               personName === undefined
                 ? alert("please complete all required fields")
                 : subtaskSubmit(
@@ -260,16 +279,16 @@ export default function CreateSubtask(props) {
                     description,
                     goal,
                     maintask,
-                    employer,
+                    employername,
                     personName
                   );
+
               console.log(personName);
               console.log(feedback);
               feedback === -1
                 ? alert("the employee is not found")
                 : console.log("subtask added");
               handleClose();
-              refreshPage();
             }}
           >
             Create Task

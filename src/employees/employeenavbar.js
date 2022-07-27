@@ -13,6 +13,7 @@ import Welcome from "../Welcome";
 import { useState, useEffect } from "react";
 import Employeesingletask from "./employeesingletask";
 import Employeetasklist from "./employeedisplaytask";
+import EmployeeWelcome from "./employeewelcome";
 import Salary from "./salary";
 import {
   getAuth,
@@ -31,6 +32,16 @@ function EmployeeBar(props) {
   const { signOutWithGoogle } = useAuth();
   const auth = getAuth();
   const [employeeId, setEmployeeId] = useState("");
+  const [username, setUsername] = useState();
+  const FindUserType = async (email) => {
+    let call = "/findUserType/?";
+    call = call + "email=" + email;
+    let result = await (await fetch(call)).json();
+    console.log(result);
+    //setUsertype(result.body);
+    //setUsername(result.name);
+    setUsername(result.name);
+  };
 
   const getEmployeeIdHandler = (id) => {
     console.log("The ID of document to be edited: ", id);
@@ -42,15 +53,6 @@ function EmployeeBar(props) {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               <Link style={{ textDecoration: "none", color: "white" }} to="/">
                 BusinessAide
@@ -79,7 +81,7 @@ function EmployeeBar(props) {
         </AppBar>
       </Box>
       <Routes>
-        <Route path="/" element={<Welcome />} />
+        <Route path="/" element={<EmployeeWelcome />} />
         <Route
           path="/employees/employeedisplaytask"
           element={<Employeetasklist />}

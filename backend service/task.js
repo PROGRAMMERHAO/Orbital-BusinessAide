@@ -340,6 +340,7 @@ mainTaskProgress = async (mainTaskName, employerName) => {
   return result;
 };
 
+// Employer Side
 completeMainTask = async (mainTaskName, employerName) => {
   mainTaskRef = db
     .collection("employers")
@@ -347,23 +348,25 @@ completeMainTask = async (mainTaskName, employerName) => {
     .collection("tasks")
     .doc(mainTaskName);
   let doc = await mainTaskRef.get();
-  if (!doc.exists()) {
+  if (!doc.exists) {
     result = {
       status: "error",
       reason: mainTaskName + " does not exist! Try checking your spelling",
     };
+    console.log(result);
     return result;
   }
 
   // complete all of the subtasks of the main task
   const snapshot = await mainTaskRef.collection("subtasks").get();
-  if (snapshot.empty) {
+  /*if (snapshot.empty) {
     result = {
       status: "error",
-      reason: subTaskName + " does not exist! Try checking your spelling",
+      reason: mainTaskName + "does not have any subtask!",
     };
     return result;
   }
+  */
   snapshot.forEach((doc) => {
     doc.ref.update({
       status: "finished",
@@ -372,175 +375,380 @@ completeMainTask = async (mainTaskName, employerName) => {
   });
 
   // complete all of the subtasks in the employees collection
-  employeeTaskRef = db
-    .collection("employees")
-    .doc(employeeName)
-    .collection("tasks");
-  const snappy = await employeeTaskRef
-    .doc(mainTaskName)
-    .collection("subtasks")
-    .get();
+  // Function given an employee name, progress and status will update the employees task record
+  updateEmployee = async (employeeName, mainTaskName) => {
+    employeeTaskRef = db
+      .collection("employees")
+      .doc(employeeName)
+      .collection("tasks")
+      .doc(mainTaskName);
 
-  snappy.forEach((doc) => {
-    doc.ref.update({
-      status: "finished",
-      progress: doc.data().goal,
+    const snap = await employeeTaskRef.collection("subtasks").get();
+    count = 0;
+    snap.forEach((subtasks) => {
+      subtasks.ref.update({
+        status: "finished",
+        progress: subtasks.data().goal,
+      });
+      count += 1;
     });
-  });
+    employeeTaskRef.update({
+      status: "finished",
+    });
+    if (count == snap.size) {
+      result = {
+        status: "success",
+        reason: "All subtasks under " + employeeName + " have been completed!",
+      };
+      return result;
+    }
+  };
+
+  counter = 0;
+  for (i = 0; i < doc.data().workers.length; ++i) {
+    employeeName = doc.data().workers[i];
+    console.log(employeeName);
+    await updateEmployee(employeeName, mainTaskName);
+    counter += 1;
+  }
 
   // complete the main task
   mainTaskRef.update({
     status: "finished",
   });
-  employeeTaskRef.update({
-    status: "finished",
-  });
 
-  result = {
-    status: "success",
-    reason: mainTaskName + " has been completed!",
-  };
-  return result;
-};
-
-completeSubTask = async (subTaskName, mainTaskName, employerName) => {
-  subTaskRef = db
-    .collection("employers")
-    .doc(employerName)
-    .collection("tasks")
-    .doc(mainTaskName)
-    .collection("subtasks")
-    .doc(subTaskName);
-  employeeSubTaskRef = db
-    .collection("employees")
-    .doc(employeeName)
-    .collection("tasks")
-    .doc(mainTaskName)
-    .collection("subtasks")
-    .doc(subTaskName);
-  const snapshot = await subTaskRef.get();
-  if (!snapshot.exists()) {
+  if (counter == doc.data().workers.length) {
     result = {
-      status: "error",
-      reason: subtaskName + " does not exist! Try checking your spelling!",
+      status: "success",
+      reason: mainTaskName + " has been completed!",
     };
+    console.log(result);
     return result;
   }
-  subTaskRef.update({
-    progress: snapshot.data().goal,
-    status: "finished",
-  });
-
-  employeeSubTaskRef.update({
-    progress: snapshot.data().goal,
-    status: "finished",
-  });
-
-  result = { status: "success", reason: subTaskName + " has been completed!" };
-  return result;
 };
 
+// Employer side
+completeSubTask = async (subTaskName, mainTaskName, employerName) => {
+                                                                       subTaskRef = db
+                                                                         .collection(
+                                                                           "employers"
+                                                                         )
+                                                                         .doc(
+                                                                           employerName
+                                                                         )
+                                                                         .collection(
+                                                                           "tasks"
+                                                                         )
+                                                                         .doc(
+                                                                           mainTaskName
+                                                                         )
+                                                                         .collection(
+                                                                           "subtasks"
+                                                                         )
+                                                                         .doc(
+                                                                           subTaskName
+                                                                         );
+                                                                       const doc = await subTaskRef.get();
+                                                                       if (
+                                                                         !doc.exists
+                                                                       ) {
+                                                                         result = {
+                                                                           status:
+                                                                             "error",
+                                                                           reason:
+                                                                             subtaskName +
+                                                                             " does not exist! Try checking your spelling!",
+                                                                         };
+                                                                         return result;
+                                                                       }
+                                                                       subTaskRef.update(
+                                                                         {
+                                                                           progress: doc.data()
+                                                                             .goal,
+                                                                           status:
+                                                                             "finished",
+                                                                         }
+                                                                       );
+
+                                                                       // complete all of the subtasks in the employees collection
+                                                                       // Function given an employee name, progress and status will update the employees task record
+                                                                       updateEmployee = async (
+                                                                         employeeName,
+                                                                         subTaskName,
+                                                                         mainTaskName
+                                                                       ) => {
+                                                                         employeeSubTaskRef = db
+                                                                           .collection(
+                                                                             "employees"
+                                                                           )
+                                                                           .doc(
+                                                                             employeeName
+                                                                           )
+                                                                           .collection(
+                                                                             "tasks"
+                                                                           )
+                                                                           .doc(
+                                                                             mainTaskName
+                                                                           )
+                                                                           .collection(
+                                                                             "subtasks"
+                                                                           )
+                                                                           .doc(
+                                                                             subTaskName
+                                                                           );
+                                                                         const subTask = await employeeSubTaskRef.get();
+                                                                         console.log(
+                                                                           subTask
+                                                                         );
+                                                                         employeeSubTaskRef
+                                                                           .update(
+                                                                             {
+                                                                               progress: subTask.data()
+                                                                                 .goal,
+                                                                               status:
+                                                                                 "finished",
+                                                                             }
+                                                                           )
+                                                                           .then(
+                                                                             () => {
+                                                                               result = {
+                                                                                 status:
+                                                                                   "success",
+                                                                                 reason:
+                                                                                   "All subtasks under " +
+                                                                                   employeeName +
+                                                                                   " have been completed!",
+                                                                               };
+                                                                               return result;
+                                                                             }
+                                                                           );
+                                                                       };
+
+                                                                       counter = 0;
+                                                                       for (
+                                                                         i = 0;
+                                                                         i <
+                                                                         doc.data()
+                                                                           .workers
+                                                                           .length;
+                                                                         ++i
+                                                                       ) {
+                                                                         employeeName = doc.data()
+                                                                           .workers[
+                                                                           i
+                                                                         ];
+                                                                         await updateEmployee(
+                                                                           employeeName,
+                                                                           subTaskName,
+                                                                           mainTaskName
+                                                                         );
+                                                                         counter += 1;
+                                                                       }
+
+                                                                       if (
+                                                                         counter ==
+                                                                         doc.data()
+                                                                           .workers
+                                                                           .length
+                                                                       ) {
+                                                                         result = {
+                                                                           status:
+                                                                             "success",
+                                                                           reason:
+                                                                             subTaskName +
+                                                                             " has been completed!",
+                                                                         };
+                                                                         return result;
+                                                                       }
+                                                                     };
 // Function to increase the progress of a subtask
 // If new value >= goal, instantly complete the subtask
 // Function to increase the progress of a subtask
 // If new value >= goal, instantly complete the subtask
 // Employer Side
 progressSubTask = async (subTaskName, value, mainTaskName, employerName) => {
-  subTaskRef = db
-    .collection("employers")
-    .doc(employerName)
-    .collection("tasks")
-    .doc(mainTaskName)
-    .collection("subtasks")
-    .doc(subTaskName);
-  console.log(employerName);
-  console.log(mainTaskName);
-  console.log(subTaskName);
-  let subTaskProgress = 0;
-  let subTaskGoal = 0;
-  let doc = await subTaskRef.get();
-  if (!doc.exists) {
-    result = {
-      status: "error",
-      reason: subTaskName + " does not exist! Try checking your spelling!",
-    };
-    console.log(result);
-    return result;
-  }
-  console.log(doc.data());
-  subTaskProgress = doc.data().progress;
-  subTaskGoal = doc.data().goal;
-  let newvalue = Number(value);
-  employeeArr = doc.data().workers;
+                                                                              subTaskRef = db
+                                                                                .collection(
+                                                                                  "employers"
+                                                                                )
+                                                                                .doc(
+                                                                                  employerName
+                                                                                )
+                                                                                .collection(
+                                                                                  "tasks"
+                                                                                )
+                                                                                .doc(
+                                                                                  mainTaskName
+                                                                                )
+                                                                                .collection(
+                                                                                  "subtasks"
+                                                                                )
+                                                                                .doc(
+                                                                                  subTaskName
+                                                                                );
+                                                                              console.log(
+                                                                                employerName
+                                                                              );
+                                                                              console.log(
+                                                                                mainTaskName
+                                                                              );
+                                                                              console.log(
+                                                                                subTaskName
+                                                                              );
 
-  // Function given an employee name, progress and status will update the employees task record
-  updateEmployee = async (
-    employeeName,
-    progress,
-    status,
-    subTaskName,
-    mainTaskName
-  ) => {
-    employeeSubTaskRef = db
-      .collection("employees")
-      .doc(employeeName)
-      .collection("tasks")
-      .doc(mainTaskName)
-      .collection("subtasks")
-      .doc(subTaskName);
-    dataObj = {
-      progress: progress,
-      status: status,
-    };
-    employeeSubTaskRef
-      .update({
-        progress: progress,
-        status: status,
-      })
-      .then(() => {
-        return {
-          status: "success",
-          reason: "Employee data has been successfully updated!",
-        };
-      });
-  };
+                                                                              let subTaskProgress = 0;
+                                                                              let subTaskGoal = 0;
+                                                                              let doc = await subTaskRef.get();
+                                                                              if (
+                                                                                !doc.exists
+                                                                              ) {
+                                                                                result = {
+                                                                                  status:
+                                                                                    "error",
+                                                                                  reason:
+                                                                                    subTaskName +
+                                                                                    " does not exist! Try checking your spelling!",
+                                                                                };
+                                                                                console.log(
+                                                                                  result
+                                                                                );
+                                                                                return result;
+                                                                              }
+                                                                              console.log(
+                                                                                doc.data()
+                                                                              );
+                                                                              subTaskProgress = doc.data()
+                                                                                .progress;
+                                                                              subTaskGoal = doc.data()
+                                                                                .goal;
+                                                                              let newvalue = Number(
+                                                                                value
+                                                                              );
+                                                                              employeeArr = doc.data()
+                                                                                .workers;
 
-  if (subTaskProgress + newvalue >= subTaskGoal) {
-    subTaskStatus = "finished";
-    subTaskRef.update({
-      progress: subTaskGoal,
-      status: subTaskStatus,
-    });
-    //update employees
-    for (i = 0; i < employeeArr.length; ++i) {
-      await updateEmployee(
-        employeeName,
-        subTaskProgress + newvalue,
-        subTaskStatus,
-        subTaskName,
-        mainTaskName
-      );
-    }
-  } else {
-    subTaskStatus = "in progress";
-    subTaskRef.update({
-      progress: subTaskProgress + newvalue,
-    });
-    // update employees
-    for (i = 0; i < employeeArr.length; ++i) {
-      console.log(employeeArr[i]);
-      await updateEmployee(
-        employeeArr[i],
-        subTaskProgress + newvalue,
-        subTaskStatus,
-        subTaskName,
-        mainTaskName
-      );
-    }
-  }
-  result = { status: "success", reason: subTaskName + " has been progressed!" };
-  return result;
-};
+                                                                              // Function given an employee name, progress and status will update the employees task record
+                                                                              updateEmployee = async (
+                                                                                employeeName,
+                                                                                progress,
+                                                                                status,
+                                                                                subTaskName,
+                                                                                mainTaskName
+                                                                              ) => {
+                                                                                employeeSubTaskRef = db
+                                                                                  .collection(
+                                                                                    "employees"
+                                                                                  )
+                                                                                  .doc(
+                                                                                    employeeName
+                                                                                  )
+                                                                                  .collection(
+                                                                                    "tasks"
+                                                                                  )
+                                                                                  .doc(
+                                                                                    mainTaskName
+                                                                                  )
+                                                                                  .collection(
+                                                                                    "subtasks"
+                                                                                  )
+                                                                                  .doc(
+                                                                                    subTaskName
+                                                                                  );
+                                                                                dataObj = {
+                                                                                  progress: progress,
+                                                                                  status: status,
+                                                                                };
+                                                                                employeeSubTaskRef
+                                                                                  .update(
+                                                                                    {
+                                                                                      progress: progress,
+                                                                                      status: status,
+                                                                                    }
+                                                                                  )
+                                                                                  .then(
+                                                                                    () => {
+                                                                                      return {
+                                                                                        status:
+                                                                                          "success",
+                                                                                        reason:
+                                                                                          "Employee data has been successfully updated!",
+                                                                                      };
+                                                                                    }
+                                                                                  );
+                                                                              };
+
+                                                                              if (
+                                                                                subTaskProgress +
+                                                                                  newvalue >=
+                                                                                subTaskGoal
+                                                                              ) {
+                                                                                subTaskStatus =
+                                                                                  "finished";
+                                                                                subTaskRef.update(
+                                                                                  {
+                                                                                    progress: subTaskGoal,
+                                                                                    status: subTaskStatus,
+                                                                                  }
+                                                                                );
+                                                                                //update employees
+                                                                                for (
+                                                                                  i = 0;
+                                                                                  i <
+                                                                                  employeeArr.length;
+                                                                                  ++i
+                                                                                ) {
+                                                                                  await updateEmployee(
+                                                                                    employeeName,
+                                                                                    subTaskProgress +
+                                                                                      newvalue,
+                                                                                    subTaskStatus,
+                                                                                    subTaskName,
+                                                                                    mainTaskName
+                                                                                  );
+                                                                                }
+                                                                              } else {
+                                                                                subTaskStatus =
+                                                                                  "in progress";
+                                                                                subTaskRef.update(
+                                                                                  {
+                                                                                    progress:
+                                                                                      subTaskProgress +
+                                                                                      newvalue,
+                                                                                  }
+                                                                                );
+                                                                                // update employees
+                                                                                for (
+                                                                                  i = 0;
+                                                                                  i <
+                                                                                  employeeArr.length;
+                                                                                  ++i
+                                                                                ) {
+                                                                                  console.log(
+                                                                                    employeeArr[
+                                                                                      i
+                                                                                    ]
+                                                                                  );
+                                                                                  await updateEmployee(
+                                                                                    employeeArr[
+                                                                                      i
+                                                                                    ],
+                                                                                    subTaskProgress +
+                                                                                      newvalue,
+                                                                                    subTaskStatus,
+                                                                                    subTaskName,
+                                                                                    mainTaskName
+                                                                                  );
+                                                                                }
+                                                                              }
+                                                                              result = {
+                                                                                status:
+                                                                                  "success",
+                                                                                reason:
+                                                                                  subTaskName +
+                                                                                  " has been progressed!",
+                                                                              };
+                                                                              return result;
+                                                                            };
 
 // Function for employee to progress the subtask they are currently working on
 progressSubTaskEmployee = async (

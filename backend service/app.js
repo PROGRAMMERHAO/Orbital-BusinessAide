@@ -208,6 +208,21 @@ app.get("/SendEmployer", async (req, res) => {
     });
 });
 
+app.get("/sendFeedback", async (req, res) => {
+  feedback
+    .sendFeedback(
+      req.query.employeeName,
+      req.query.employerName,
+      req.query.feedback,
+      req.query.anonymousCheck,
+      req.query.mainTaskName
+    )
+    .then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+    });
+});
+
 app.get("/getAllEmployeeSalary", async (req, res) => {
   retriever.getAllEmployeeSalary(req.query.employerName).then((ans) => {
     // you need the then to wait for the result of the function

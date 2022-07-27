@@ -42,6 +42,7 @@ export default function BasicCard(props) {
   const [feedback, setFeedback] = useState([]);
   const [subtasks, setSubTasks] = useState([]);
   let subtasktemp = [];
+  const [employername, setEmployername] = useState();
   const [description, setDescription] = useState([]);
   const [mainworkers, setMainWorkers] = useState([]);
   const [workers, setWorkers] = useState([]);
@@ -57,6 +58,7 @@ export default function BasicCard(props) {
   const auth = getAuth();
   const user = auth.currentUser;
   const name = user.fullname;
+  const [isUpdated, setIsupdated] = useState(false);
   var tempprogress = 0;
   var progresstemp = [];
   let temp = 0;
@@ -74,6 +76,8 @@ export default function BasicCard(props) {
     //setUsertype(result.body);
     //setUsername(result.name);
     username = result1.name;
+    setEmployername(result1.name);
+    console.log(username);
     let call = "/mainTaskProgress/?";
     call = call + "tasks=" + tasks + "&";
     call = call + "employerName=" + username;
@@ -104,52 +108,57 @@ export default function BasicCard(props) {
   };
 
   var username;
-
-  useEffect(() => {
-    const viewMainTask = async (mainTaskName, email) => {
-      let call1 = "/findUserType/?";
-      call1 = call1 + "email=" + email;
-      let result1 = await (await fetch(call1)).json();
-      console.log(result1);
-      //setUsertype(result.body);
-      //setUsername(result.name);
-      username = result1.name;
-      viewMainTaskFeedback(mainTaskName, username);
-      let call = "/getMainTaskData/?";
-      call = call + "mainTaskName=" + mainTaskName + "&";
-      call = call + "employerName=" + username;
+  const viewMainTask = async (mainTaskName, email) => {
+    let call1 = "/findUserType/?";
+    call1 = call1 + "email=" + email;
+    let result1 = await (await fetch(call1)).json();
+    console.log(result1);
+    //setUsertype(result.body);
+    //setUsername(result.name);
+    username = result1.name;
+    setEmployername(result1.name);
+    viewMainTaskFeedback(mainTaskName, result1.name);
+    let call = "/getMainTaskData/?";
+    call = call + "mainTaskName=" + mainTaskName + "&";
+    call = call + "employerName=" + username;
+    let result = await (await fetch(call)).json();
+    console.log(result);
+    setMainDescription(result.body.description);
+    setMainStatus(result.body.status);
+    setSubTasks(result.body.subtasks);
+    setMainWorkers(result.body.workers);
+    subtasktemp = result.body.subtasks;
+    console.log(subtasktemp);
+    setDescription([]);
+    setWorkers([]);
+    setGoal([]);
+    setStatus([]);
+    setProgress([]);
+    for (let i = 0; i < subtasktemp.length; i++) {
+      let call = "/getSubTaskData/?";
+      call = call + "subTaskName=" + subtasktemp[i] + "&";
+      call = call + "mainTaskName=" + maintask + "&";
+      call = call + "employerName=" + result1.name;
       let result = await (await fetch(call)).json();
       console.log(result);
-      setMainDescription(result.body.description);
-      setMainStatus(result.body.status);
-      setSubTasks(result.body.subtasks);
-      setMainWorkers(result.body.workers);
-      subtasktemp = result.body.subtasks;
-      console.log(subtasktemp);
-      for (let i = 0; i < subtasktemp.length; i++) {
-        let call = "/getSubTaskData/?";
-        call = call + "subTaskName=" + subtasktemp[i] + "&";
-        call = call + "mainTaskName=" + maintask + "&";
-        call = call + "employerName=" + username;
-        let result = await (await fetch(call)).json();
-        console.log(result);
-        //setSubTasks((subtasks) => [...subtasks, result.subTaskName]);
-        setDescription((description) => [
-          ...description,
-          result.body.description,
-        ]);
-        setWorkers((workers) => [...workers, result.body.workers]);
-        setGoal((goal) => [...goal, result.body.goal]);
-        setProgress((progress) => [...progress, result.body.progress]);
-        setStatus((status) => [...status, result.body.status]);
-        console.log(subtasks);
-      }
-    };
+      //setSubTasks((subtasks) => [...subtasks, result.subTaskName]);
+      setDescription((description) => [
+        ...description,
+        result.body.description,
+      ]);
+      setWorkers((workers) => [...workers, result.body.workers]);
+      setGoal((goal) => [...goal, result.body.goal]);
+      setProgress((progress) => [...progress, result.body.progress]);
+      setStatus((status) => [...status, result.body.status]);
+      console.log(subtasks);
+    }
+  };
+  useEffect(() => {
     if (user) {
       viewMainTask(maintask, user.email);
       mainTaskProgress(maintask, user.email);
     }
-  }, []);
+  }, [isUpdated]);
 
   useEffect(() => {
     console.log(mainprogress);
@@ -216,19 +225,39 @@ export default function BasicCard(props) {
     //setProgress(progress[index]+1);
   };
 
-  const completeSubTask = async (subTaskName, mainTaskName, employerName) => {
+  const completeSubTask = async (
+    subTaskName,
+    mainTaskName,
+    employerName,
+    email
+  ) => {
+    if (!isUpdated) {
+      setIsupdated(true);
+    } else {
+      setIsupdated(false);
+    }
     let call = "/completeSubTask/?";
     call = call + "subTaskName=" + subTaskName + "&";
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
     await (await fetch(call)).json();
+    viewMainTask(mainTaskName, email);
+    mainTaskProgress(mainTaskName, email);
   };
 
-  const completeMainTask = async (mainTaskName, employerName) => {
+  const completeMainTask = async (mainTaskName, employerName, email) => {
+    if (!isUpdated) {
+      setIsupdated(true);
+    } else {
+      setIsupdated(false);
+    }
+    console.log(email);
     let call = "/completeMainTask/?";
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
-    await (await fetch(call)).json();
+    let result = await (await fetch(call)).json();
+    viewMainTask(mainTaskName, email);
+    mainTaskProgress(mainTaskName, email);
   };
 
   //subTaskProgress("hahahah",3, maintask, "adam jerry")
@@ -270,8 +299,7 @@ export default function BasicCard(props) {
         />
         <Button
           onClick={() => {
-            completeMainTask(maintask, username);
-            refreshPage();
+            completeMainTask(maintask, employername, user.email);
           }}
         >
           Mark as Finished
@@ -282,7 +310,12 @@ export default function BasicCard(props) {
           <div>
             <List>
               <ListItem>
-                <CreateSubtask maintask={maintask} people={mainworkers} />
+                <CreateSubtask
+                  setIsupdated={setIsupdated}
+                  isUpdated={isUpdated}
+                  maintask={maintask}
+                  people={mainworkers}
+                />
               </ListItem>
               <ListItem>
                 <FullScreenDialog feedback={feedback} />
@@ -342,12 +375,12 @@ export default function BasicCard(props) {
                               ...existingItems.slice(index + 1),
                             ];
                           });
-
+                          console.log(username);
                           subTaskProgress(
                             task,
                             newValue,
                             maintask,
-                            username,
+                            employername,
                             index
                           );
                           progresstemp = progress;
@@ -382,10 +415,7 @@ export default function BasicCard(props) {
                   </Typography>
                   <Button
                     onClick={() => {
-                      completeSubTask(task, maintask, username);
-                      completeMainTask(maintask, username);
-                      refreshPage();
-                      refreshPage();
+                      completeSubTask(task, maintask, employername, user.email);
                       setStatus((existingItems) => {
                         return [
                           ...existingItems.slice(0, index),

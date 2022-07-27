@@ -14,7 +14,7 @@ sendFeedback = async (
   mainTaskName
 ) => {
   const feedbackRef = db
-    .collection("employer")
+    .collection("employers")
     .doc(employerName)
     .collection("tasks")
     .doc(mainTaskName)
@@ -27,6 +27,11 @@ sendFeedback = async (
     .collection("employees")
     .doc(employeeName);
   let doc = await docRef.get();
+  console.log(employeeName);
+  console.log(employerName);
+  console.log(feedback);
+  console.log(mainTaskName);
+  console.log(anonymousCheck);
   if (!doc.exists) {
     result = {
       status: "error",
@@ -37,6 +42,7 @@ sendFeedback = async (
         employerName +
         "!",
     };
+    console.log(result);
     return result;
   }
 
@@ -61,17 +67,18 @@ sendFeedback = async (
 
   // send feedback to employees collection
   const employeeFeedbackRef = db
-    .collection("employee")
+    .collection("employees")
     .doc(employeeName)
     .collection("tasks")
     .doc(mainTaskName)
     .collection("feedback");
-  employeeFeedbackRef.doc("feedback").set(data);
-  feedbackRef.add(data);
+  await employeeFeedbackRef.doc("feedback").set(data);
+  await feedbackRef.add(data);
   result = {
     status: "success",
     reason: "Feedback has been sent successfully!",
   };
+  console.log(result);
 };
 
 // Function that returns an array of objects containing the feedback of a main task

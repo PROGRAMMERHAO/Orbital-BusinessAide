@@ -178,93 +178,133 @@ export default function Individual() {
           </h3>
           <h3>
             <PaidIcon></PaidIcon> Salary for the Month:{" "}
-            {overall}
+            {
+              employees._document.data.value.mapValue.fields.overallSalary
+                .stringValue
+            }
           </h3>
-          <Button variant="outlined" onClick={handleClickOpen}>add new payroll</Button> 
-          <BootstrapDialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-      >
-        <BootstrapDialogTitle
-          id="customized-dialog-title"
-          onClose={handleClose}
-        >
-          Add a Payroll
-        </BootstrapDialogTitle>
-        <DialogContent dividers>
-          <Box component="form" onSubmit noValidate sx={{ mt: 1 }}>
-            <TextField
-              value={rate}
-              margin="normal"
-              required
-              fullWidth
-              id="rate"
-              label="Daily Salary"
-              name="rate"
-              autoComplete="rate"
-              autoFocus
-              onChange={(e) => {setRate(Number(e.target.value)); setOverall(e.target.value*days+overtime-deductions)}}
-            />
-             
-            <TextField
-              value={days}
-              margin="normal"
-              required
-              fullWidth
-              id="days"
-              label="Number of Days Attended"
-              name="days"
-              autoComplete="days"
-              autoFocus
-              onChange={(e) => {setDays(Number(e.target.value));setOverall(rate*e.target.value+overtime*hourly-deductions)}}
-            />
-            <TextField
-              value={hourly}
-              margin="normal"
-              required
-              fullWidth
-              id="hourly"
-              label="Hourly Salary for Overtime"
-              name="hourly"
-              autoComplete="hourly"
-              autoFocus
-              onChange={(e) => {setHourly(Number(e.target.value)); setOverall(rate*days+overtime*e.target.value-deductions)}}
-            />
-            <TextField
-              value={overtime}
-              margin="normal"
-              required
-              fullWidth
-              id="overtime"
-              label="Overtime Hours"
-              name="overtime"
-              autoComplete="overtime"
-              autoFocus
-              onChange={(e) => {setOvertime(Number(e.target.value));setOverall(rate*days+Number(e.target.value)*hourly-deductions)}}
-            />
-            <TextField
-              value={deductions}
-              margin="normal"
-              required
-              fullWidth
-              name="deductions"
-              label="Deductions"
-              id="deductions"
-              onChange={(e) => {setDeductions(Number(e.target.value));setOverall(rate*days+overtime*hourly-e.target.value)}}
-            />
-           <h3>The overall monthly salary is: {overall}</h3>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={()=>{sendPayroll(rate,days,hourly,overtime,deductions,overall,employeename,"adam jerry")
-          ; handleClose();
-          }}
-          >
-            SUBMIT
+          <Button variant="outlined" onClick={handleClickOpen}>
+            add new payroll
           </Button>
-        </DialogActions>
-      </BootstrapDialog>   
+          <BootstrapDialog
+            onClose={handleClose}
+            aria-labelledby="customized-dialog-title"
+            open={open}
+          >
+            <BootstrapDialogTitle
+              id="customized-dialog-title"
+              onClose={handleClose}
+            >
+              Add a Payroll
+            </BootstrapDialogTitle>
+            <DialogContent dividers>
+              <Box component="form" onSubmit noValidate sx={{ mt: 1 }}>
+                <TextField
+                  value={rate}
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="rate"
+                  label="Daily Salary"
+                  name="rate"
+                  autoComplete="rate"
+                  autoFocus
+                  onChange={(e) => {
+                    setRate(Number(e.target.value));
+                    setOverall(e.target.value * days + overtime - deductions);
+                  }}
+                />
+
+                <TextField
+                  value={days}
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="days"
+                  label="Number of Days Attended"
+                  name="days"
+                  autoComplete="days"
+                  autoFocus
+                  onChange={(e) => {
+                    setDays(Number(e.target.value));
+                    setOverall(
+                      rate * e.target.value + overtime * hourly - deductions
+                    );
+                  }}
+                />
+                <TextField
+                  value={hourly}
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="hourly"
+                  label="Hourly Salary for Overtime"
+                  name="hourly"
+                  autoComplete="hourly"
+                  autoFocus
+                  onChange={(e) => {
+                    setHourly(Number(e.target.value));
+                    setOverall(
+                      rate * days + overtime * e.target.value - deductions
+                    );
+                  }}
+                />
+                <TextField
+                  value={overtime}
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="overtime"
+                  label="Overtime Hours"
+                  name="overtime"
+                  autoComplete="overtime"
+                  autoFocus
+                  onChange={(e) => {
+                    setOvertime(Number(e.target.value));
+                    setOverall(
+                      rate * days + Number(e.target.value) * hourly - deductions
+                    );
+                  }}
+                />
+                <TextField
+                  value={deductions}
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="deductions"
+                  label="Deductions"
+                  id="deductions"
+                  onChange={(e) => {
+                    setDeductions(Number(e.target.value));
+                    setOverall(
+                      rate * days + overtime * hourly - e.target.value
+                    );
+                  }}
+                />
+                <h3>The overall monthly salary is: {overall}</h3>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  console.log(employeename);
+                  sendPayroll(
+                    rate,
+                    days,
+                    hourly,
+                    overtime,
+                    deductions,
+                    overall,
+                    employeename,
+                    "adam jerry"
+                  );
+                  handleClose();
+                }}
+              >
+                SUBMIT
+              </Button>
+            </DialogActions>
+          </BootstrapDialog>
         </div>
       </div>
     );

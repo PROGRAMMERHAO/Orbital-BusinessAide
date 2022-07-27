@@ -23,8 +23,10 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { getDisplayName } from "@mui/utils";
-import { Grid, TextField } from "@mui/material";
+import { Grid, ListItem, TextField } from "@mui/material";
 import CreateSubtask from "../task/createsubtask";
+import CreateFeedback from "./employeefeedback";
+import { List } from "@mui/material";
 
 const auth = getAuth();
 const user = auth.currentUser;
@@ -54,10 +56,12 @@ export default function Employeesingletask(props) {
   const auth = getAuth();
   const user = auth.currentUser;
   const name = user.fullname;
+  var username;
   var tempprogress = 0;
   var progresstemp = [];
   let temp = 0;
   const [newValue, setnewValue] = useState(0);
+  const [employeeName, setEmployeename] = useState();
   var value = 0;
   console.log(user);
   function refreshPage() {
@@ -95,37 +99,141 @@ export default function Employeesingletask(props) {
 
   useEffect(() => {
     const viewMainTask = async (mainTaskName, employerName) => {
-      let call = "/getMainTaskData/?";
-      call = call + "mainTaskName=" + mainTaskName + "&";
-      call = call + "employerName=" + employerName;
-      let result = await (await fetch(call)).json();
-      console.log(result);
-      setMainDescription(result.body.description);
-      setMainStatus(result.body.status);
-      setSubTasks(result.body.subtasks);
-      setMainWorkers(result.body.workers);
-      subtasktemp = result.body.subtasks;
-      console.log(subtasktemp);
-      for (let i = 0; i < subtasktemp.length; i++) {
-        let call = "/getSubTaskData/?";
-        call = call + "subTaskName=" + subtasktemp[i] + "&";
-        call = call + "mainTaskName=" + maintask + "&";
-        call = call + "employerName=" + "adam jerry";
-        let result = await (await fetch(call)).json();
-        console.log(result);
-        //setSubTasks((subtasks) => [...subtasks, result.subTaskName]);
-        setDescription((description) => [
-          ...description,
-          result.body.description,
-        ]);
-        setWorkers((workers) => [...workers, result.body.workers]);
-        setGoal((goal) => [...goal, result.body.goal]);
-        setProgress((progress) => [...progress, result.body.progress]);
-        setStatus((status) => [...status, result.body.status]);
-        console.log(subtasks);
-      }
-    };
-
+                                                                 /* let call1 = "/findUserType/?";
+      call1 = call1 + "email=" + email;
+      let result1 = await (await fetch(call1)).json();
+      console.log(result1);
+      //setUsertype(result.body);
+      //setUsername(result.name);
+      username = result1.name;
+      setEmployeename(result1.name);*/
+                                                                 let call =
+                                                                   "/getMainTaskData/?";
+                                                                 call =
+                                                                   call +
+                                                                   "mainTaskName=" +
+                                                                   mainTaskName +
+                                                                   "&";
+                                                                 call =
+                                                                   call +
+                                                                   "employerName=" +
+                                                                   employerName;
+                                                                 let result = await (
+                                                                   await fetch(
+                                                                     call
+                                                                   )
+                                                                 ).json();
+                                                                 console.log(
+                                                                   result
+                                                                 );
+                                                                 setMainDescription(
+                                                                   result.body
+                                                                     .description
+                                                                 );
+                                                                 setMainStatus(
+                                                                   result.body
+                                                                     .status
+                                                                 );
+                                                                 setSubTasks(
+                                                                   result.body
+                                                                     .subtasks
+                                                                 );
+                                                                 setMainWorkers(
+                                                                   result.body
+                                                                     .workers
+                                                                 );
+                                                                 subtasktemp =
+                                                                   result.body
+                                                                     .subtasks;
+                                                                 console.log(
+                                                                   subtasktemp
+                                                                 );
+                                                                 for (
+                                                                   let i = 0;
+                                                                   i <
+                                                                   subtasktemp.length;
+                                                                   i++
+                                                                 ) {
+                                                                   let call =
+                                                                     "/getSubTaskData/?";
+                                                                   call =
+                                                                     call +
+                                                                     "subTaskName=" +
+                                                                     subtasktemp[
+                                                                       i
+                                                                     ] +
+                                                                     "&";
+                                                                   call =
+                                                                     call +
+                                                                     "mainTaskName=" +
+                                                                     maintask +
+                                                                     "&";
+                                                                   call =
+                                                                     call +
+                                                                     "employerName=" +
+                                                                     "adam jerry";
+                                                                   let result = await (
+                                                                     await fetch(
+                                                                       call
+                                                                     )
+                                                                   ).json();
+                                                                   console.log(
+                                                                     result
+                                                                   );
+                                                                   //setSubTasks((subtasks) => [...subtasks, result.subTaskName]);
+                                                                   setDescription(
+                                                                     (
+                                                                       description
+                                                                     ) => [
+                                                                       ...description,
+                                                                       result
+                                                                         .body
+                                                                         .description,
+                                                                     ]
+                                                                   );
+                                                                   setWorkers(
+                                                                     (
+                                                                       workers
+                                                                     ) => [
+                                                                       ...workers,
+                                                                       result
+                                                                         .body
+                                                                         .workers,
+                                                                     ]
+                                                                   );
+                                                                   setGoal(
+                                                                     (goal) => [
+                                                                       ...goal,
+                                                                       result
+                                                                         .body
+                                                                         .goal,
+                                                                     ]
+                                                                   );
+                                                                   setProgress(
+                                                                     (
+                                                                       progress
+                                                                     ) => [
+                                                                       ...progress,
+                                                                       result
+                                                                         .body
+                                                                         .progress,
+                                                                     ]
+                                                                   );
+                                                                   setStatus(
+                                                                     (
+                                                                       status
+                                                                     ) => [
+                                                                       ...status,
+                                                                       result
+                                                                         .body
+                                                                         .status,
+                                                                     ]
+                                                                   );
+                                                                   console.log(
+                                                                     subtasks
+                                                                   );
+                                                                 }
+                                                               };
     viewMainTask(maintask, "adam jerry");
     mainTaskProgress(maintask, "adam jerry");
   }, []);
@@ -247,7 +355,18 @@ export default function Employeesingletask(props) {
         {mainworkers.length === 0 ? (
           <div>loading...</div>
         ) : (
-          <CreateSubtask maintask={maintask} people={mainworkers} />
+          <div>
+            <List>
+              <ListItem></ListItem>
+              <ListItem>
+                <CreateFeedback
+                  employerName="adam jerry"
+                  employeeName="chase potato"
+                  mainTaskName={maintask}
+                />
+              </ListItem>
+            </List>
+          </div>
         )}
         <div style={{ color: "white" }}>hahahah</div>
         <Grid>
@@ -360,7 +479,7 @@ export default function Employeesingletask(props) {
                           <Button
                             onClick={() => {
                               completeSubTask(task, maintask, "adam jerry");
-                              completeMainTask(maintask, "adam jerry");
+
                               refreshPage();
                               refreshPage();
                               setStatus((existingItems) => {

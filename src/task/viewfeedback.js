@@ -34,10 +34,10 @@ export default function FullScreenDialog(props) {
         onClick={handleClickOpen}
         style={{
           position: "absolute",
-          left: 650,
+          left: 555,
         }}
       >
-        Open full-screen dialog
+        View Feedback from Employees
       </Button>
       <Dialog
         fullScreen
@@ -56,14 +56,25 @@ export default function FullScreenDialog(props) {
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              Sound
+              Feedback
             </Typography>
-            <Button autoFocus color="inherit" onClick={handleClose}>
-              save
-            </Button>
           </Toolbar>
         </AppBar>
-        <List></List>
+        <List>
+          {props.feedback.map((doc) => {
+            return (
+              <div>
+                <ListItem button>
+                  <ListItemText
+                    primary={doc.feedback}
+                    secondary={doc.employee}
+                  />
+                </ListItem>
+                <Divider />
+              </div>
+            );
+          })}
+        </List>
       </Dialog>
     </div>
   );

@@ -15,12 +15,11 @@ import {
   where,
   addDoc,
 } from "firebase/firestore";
-import { config as firebaseConfig } from "./config";
 import { useEffect } from "react";
 import { useState } from "react";
 import { Typography } from "@mui/material";
 
-export default function Welcome() {
+export default function EmployeeWelcome() {
   const theme = createTheme({
     typography: {
       fontFamily: [
@@ -38,8 +37,6 @@ export default function Welcome() {
     },
   });
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
   const auth = getAuth();
   const user = auth.currentUser;
   //const q = query(collection(db, "users"), where("uid", "==", user.uid));
@@ -74,9 +71,7 @@ export default function Welcome() {
                 }}
                 variant="h6"
               >
-                To view or add payroll, please go to the "payroll" page and
-                click on each salary. You will be able to create new payroll
-                there
+                To view, please go to the "payroll" page
               </Typography>
             </Card>
           </ListItem>
@@ -86,8 +81,8 @@ export default function Welcome() {
                 <SendIcon />
               </ListItemIcon>
               <Typography fontFamily={'"Segoe UI"'} variant="h6">
-                To create a task, please go to the "add task" page and fill in
-                all the fields
+                To view each individual task, please to go to "view task" page
+                and click on each of the task
               </Typography>
             </Card>
           </ListItem>
@@ -97,29 +92,19 @@ export default function Welcome() {
                 <SendIcon />
               </ListItemIcon>
               <Typography fontFamily={'"Segoe UI"'} variant="h6">
-                To view each individual task, please to go to the "view task"
-                page and click on each of the task
-              </Typography>
-            </Card>
-          </ListItem>
-          <ListItem>
-            <Card>
-              <ListItemIcon>
-                <SendIcon />
-              </ListItemIcon>
-              <Typography fontFamily={'"Segoe UI"'} variant="h6">
-                To create a subtask, please set the goal as a number
-              </Typography>
-            </Card>
-          </ListItem>
-          <ListItem>
-            <Card>
-              <ListItemIcon>
-                <SendIcon />
-              </ListItemIcon>
-              <Typography fontFamily={'"Segoe UI"'} variant="h6">
-                To increase the task progress, please enter a number and click
+                To increase the task progress, enter a number and click on
                 "increase progress by"
+              </Typography>
+            </Card>
+          </ListItem>
+          <ListItem>
+            <Card>
+              <ListItemIcon>
+                <SendIcon />
+              </ListItemIcon>
+              <Typography fontFamily={'"Segoe UI"'} variant="h6">
+                To complete a main task/subtask, click on "mark as complete
+                under the task"
               </Typography>
             </Card>
           </ListItem>
