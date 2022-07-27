@@ -128,7 +128,9 @@ export default function OutlinedCard() {
   if (tasks.length === null) {
     return <div>loading...</div>;
   }
-  return (
+  return tasks === [] ? (
+    <div>loading...</div>
+  ) : (
     <div>
       <h1>Task Page</h1>
 

@@ -84,7 +84,15 @@ function Home(props) {
                 Add Tasks
               </Link>
             </Button>
-            <Button onClick={signOutWithGoogle} color="inherit">
+            <Button
+              onClick={signOutWithGoogle}
+              variant="outlined"
+              sx={{
+                color: "yellow",
+                backgroundColor: "orange",
+                borderColor: "green",
+              }}
+            >
               sign out
             </Button>
           </Toolbar>

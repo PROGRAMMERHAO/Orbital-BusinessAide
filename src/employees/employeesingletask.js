@@ -56,21 +56,36 @@ export default function Employeesingletask(props) {
   const auth = getAuth();
   const user = auth.currentUser;
   const name = user.fullname;
+  var employer;
   var username;
   var tempprogress = 0;
   var progresstemp = [];
   let temp = 0;
   const [newValue, setnewValue] = useState(0);
+  const [employerName, setEmployername] = useState();
   const [employeeName, setEmployeename] = useState();
+  const [isUpdated, setIsupdated] = useState(false);
   var value = 0;
   console.log(user);
   function refreshPage() {
     window.location.reload(false);
   }
-  const mainTaskProgress = async (tasks, employerName) => {
+  const mainTaskProgress = async (tasks, email) => {
+    let call1 = "/findUserType/?";
+    call1 = call1 + "email=" + email;
+    let result1 = await (await fetch(call1)).json();
+    console.log(result1);
+    //setUsertype(result.body);
+    //setUsername(result.name);
+    username = result1.name;
+    //setEmployeename(result1.name);
+    let call2 = "/getEmployerName/?";
+    call2 = call2 + "employeeName=" + result1.name;
+    let result2 = await (await fetch(call2)).json();
+    employer = result2.employerName;
     let call = "/mainTaskProgress/?";
     call = call + "tasks=" + tasks + "&";
-    call = call + "employerName=" + employerName;
+    call = call + "employerName=" + employer;
     let result = await (await fetch(call)).json();
     console.log(result);
     setMainProgress(result.body);
@@ -98,8 +113,8 @@ export default function Employeesingletask(props) {
   };
 
   useEffect(() => {
-    const viewMainTask = async (mainTaskName, employerName) => {
-                                                                 /* let call1 = "/findUserType/?";
+    const viewMainTask = async (mainTaskName, email) => {
+      /* let call1 = "/findUserType/?";
       call1 = call1 + "email=" + email;
       let result1 = await (await fetch(call1)).json();
       console.log(result1);
@@ -107,136 +122,61 @@ export default function Employeesingletask(props) {
       //setUsername(result.name);
       username = result1.name;
       setEmployeename(result1.name);*/
-                                                                 let call =
-                                                                   "/getMainTaskData/?";
-                                                                 call =
-                                                                   call +
-                                                                   "mainTaskName=" +
-                                                                   mainTaskName +
-                                                                   "&";
-                                                                 call =
-                                                                   call +
-                                                                   "employerName=" +
-                                                                   employerName;
-                                                                 let result = await (
-                                                                   await fetch(
-                                                                     call
-                                                                   )
-                                                                 ).json();
-                                                                 console.log(
-                                                                   result
-                                                                 );
-                                                                 setMainDescription(
-                                                                   result.body
-                                                                     .description
-                                                                 );
-                                                                 setMainStatus(
-                                                                   result.body
-                                                                     .status
-                                                                 );
-                                                                 setSubTasks(
-                                                                   result.body
-                                                                     .subtasks
-                                                                 );
-                                                                 setMainWorkers(
-                                                                   result.body
-                                                                     .workers
-                                                                 );
-                                                                 subtasktemp =
-                                                                   result.body
-                                                                     .subtasks;
-                                                                 console.log(
-                                                                   subtasktemp
-                                                                 );
-                                                                 for (
-                                                                   let i = 0;
-                                                                   i <
-                                                                   subtasktemp.length;
-                                                                   i++
-                                                                 ) {
-                                                                   let call =
-                                                                     "/getSubTaskData/?";
-                                                                   call =
-                                                                     call +
-                                                                     "subTaskName=" +
-                                                                     subtasktemp[
-                                                                       i
-                                                                     ] +
-                                                                     "&";
-                                                                   call =
-                                                                     call +
-                                                                     "mainTaskName=" +
-                                                                     maintask +
-                                                                     "&";
-                                                                   call =
-                                                                     call +
-                                                                     "employerName=" +
-                                                                     "adam jerry";
-                                                                   let result = await (
-                                                                     await fetch(
-                                                                       call
-                                                                     )
-                                                                   ).json();
-                                                                   console.log(
-                                                                     result
-                                                                   );
-                                                                   //setSubTasks((subtasks) => [...subtasks, result.subTaskName]);
-                                                                   setDescription(
-                                                                     (
-                                                                       description
-                                                                     ) => [
-                                                                       ...description,
-                                                                       result
-                                                                         .body
-                                                                         .description,
-                                                                     ]
-                                                                   );
-                                                                   setWorkers(
-                                                                     (
-                                                                       workers
-                                                                     ) => [
-                                                                       ...workers,
-                                                                       result
-                                                                         .body
-                                                                         .workers,
-                                                                     ]
-                                                                   );
-                                                                   setGoal(
-                                                                     (goal) => [
-                                                                       ...goal,
-                                                                       result
-                                                                         .body
-                                                                         .goal,
-                                                                     ]
-                                                                   );
-                                                                   setProgress(
-                                                                     (
-                                                                       progress
-                                                                     ) => [
-                                                                       ...progress,
-                                                                       result
-                                                                         .body
-                                                                         .progress,
-                                                                     ]
-                                                                   );
-                                                                   setStatus(
-                                                                     (
-                                                                       status
-                                                                     ) => [
-                                                                       ...status,
-                                                                       result
-                                                                         .body
-                                                                         .status,
-                                                                     ]
-                                                                   );
-                                                                   console.log(
-                                                                     subtasks
-                                                                   );
-                                                                 }
-                                                               };
-    viewMainTask(maintask, "adam jerry");
-    mainTaskProgress(maintask, "adam jerry");
-  }, []);
+      let call1 = "/findUserType/?";
+      call1 = call1 + "email=" + email;
+      let result1 = await (await fetch(call1)).json();
+      console.log(result1);
+      //setUsertype(result.body);
+      //setUsername(result.name);
+      username = result1.name;
+      setEmployeename(result1.name);
+      //setEmployeename(result1.name);
+      let call2 = "/getEmployerName/?";
+      call2 = call2 + "employeeName=" + result1.name;
+      let result2 = await (await fetch(call2)).json();
+      employer = result2.employerName;
+      setEmployername(result2.employerName);
+      console.log(employer);
+      let call = "/getMainTaskData/?";
+      call = call + "mainTaskName=" + mainTaskName + "&";
+      call = call + "employerName=" + employer;
+      let result = await (await fetch(call)).json();
+      console.log(result);
+      setMainDescription(result.body.description);
+      setMainStatus(result.body.status);
+      setSubTasks(result.body.subtasks);
+      setMainWorkers(result.body.workers);
+      subtasktemp = result.body.subtasks;
+      console.log(subtasktemp);
+      setDescription([]);
+      setWorkers([]);
+      setGoal([]);
+      setStatus([]);
+      setProgress([]);
+      for (let i = 0; i < subtasktemp.length; i++) {
+        let call = "/getSubTaskData/?";
+        call = call + "subTaskName=" + subtasktemp[i] + "&";
+        call = call + "mainTaskName=" + maintask + "&";
+        call = call + "employerName=" + employer;
+        let result = await (await fetch(call)).json();
+        console.log(result);
+        //setSubTasks((subtasks) => [...subtasks, result.subTaskName]);
+        setDescription((description) => [
+          ...description,
+          result.body.description,
+        ]);
+        setWorkers((workers) => [...workers, result.body.workers]);
+        setGoal((goal) => [...goal, result.body.goal]);
+        setProgress((progress) => [...progress, result.body.progress]);
+        setStatus((status) => [...status, result.body.status]);
+        console.log(subtasks);
+      }
+    };
+    if (user) {
+      viewMainTask(maintask, user.email);
+      mainTaskProgress(maintask, user.email);
+    }
+  }, [isUpdated]);
 
   useEffect(() => {
     console.log(mainprogress);
@@ -293,6 +233,11 @@ export default function Employeesingletask(props) {
   };
 
   const completeSubTask = async (subTaskName, mainTaskName, employerName) => {
+    if (!isUpdated) {
+      setIsupdated(true);
+    } else {
+      setIsupdated(false);
+    }
     let call = "/completeSubTask/?";
     call = call + "subTaskName=" + subTaskName + "&";
     call = call + "mainTaskName=" + mainTaskName + "&";
@@ -301,6 +246,11 @@ export default function Employeesingletask(props) {
   };
 
   const completeMainTask = async (mainTaskName, employerName) => {
+    if (!isUpdated) {
+      setIsupdated(true);
+    } else {
+      setIsupdated(false);
+    }
     let call = "/completeMainTask/?";
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
@@ -346,8 +296,7 @@ export default function Employeesingletask(props) {
         />
         <Button
           onClick={() => {
-            completeMainTask(maintask, "adam jerry");
-            refreshPage();
+            completeMainTask(maintask, employerName);
           }}
         >
           Mark as Finished
@@ -360,8 +309,8 @@ export default function Employeesingletask(props) {
               <ListItem></ListItem>
               <ListItem>
                 <CreateFeedback
-                  employerName="adam jerry"
-                  employeeName="chase potato"
+                  employerName={employerName}
+                  employeeName={employeeName}
                   mainTaskName={maintask}
                 />
               </ListItem>
@@ -377,12 +326,12 @@ export default function Employeesingletask(props) {
               console.log(workers[index]);
               if (Array.isArray(workers[index])) {
                 for (let i = 0; i < workers[index].length; i++) {
-                  if (workers[index][i] == "chase potato") {
+                  if (workers[index][i] == employeeName) {
                     choose = true;
                   }
                 }
               } else {
-                if (workers[index] === "chase potato") {
+                if (workers[index] === employeeName) {
                   choose = true;
                 }
               }
@@ -446,7 +395,7 @@ export default function Employeesingletask(props) {
                                 task,
                                 newValue,
                                 maintask,
-                                "adam jerry",
+                                employerName,
                                 index
                               );
                               progresstemp = progress;
@@ -478,10 +427,8 @@ export default function Employeesingletask(props) {
                           </Button>
                           <Button
                             onClick={() => {
-                              completeSubTask(task, maintask, "adam jerry");
+                              completeSubTask(task, maintask, employerName);
 
-                              refreshPage();
-                              refreshPage();
                               setStatus((existingItems) => {
                                 return [
                                   ...existingItems.slice(0, index),

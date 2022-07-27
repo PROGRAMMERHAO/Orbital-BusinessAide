@@ -17,6 +17,7 @@ import { useDispatch } from "react-redux";
 import { login } from "../../redux/employee.feature";
 import { useNavigate } from "react-router-dom";
 
+
 //import { useAuthState } from "react-firebase-hooks/auth";
 import {
   getAuth,
@@ -57,6 +58,7 @@ const Styles = styled.div`
 const theme = createTheme();
 const Submit = () => {
   const {user} = useAuth();
+  const { signOutWithGoogle } = useAuth();
   const { registerWithEmailAndPassword } = useAuth();
   const { signInWithGoogle } = useAuth();
   const [firstName, setFirstName] = useState("");
@@ -79,68 +81,66 @@ const Submit = () => {
   //if (!username) alert("Please enter name");
   //registerWithEmailAndPassword(fullname, username, password);
   //};
-  async function register (event) {
-
+  async function register(event) {
     event.preventDefault();
-   
-    if (firstName=="") {
-      return alert("Please enter a full name");
-    }
- 
-else if (username==="") {
-  alert("please enter an email")
-}
-    else if(password!==retypepassword) {
-      alert("passwords do not match")
-    }
-   
-    else{
-          // Create a new user with Firebase
-          let call = "/SendEmployee/?";
-          call = call + "firstName=" + firstName + "&";
-          call = call + "lastName=" + lastName + "&";
-          call = call + "secretCode=" + secretcode + "&";
-          call = call + "dob=" + dob + "&";
-          call = call + "workExp=" + workExp + "&";
-          call = call + "location=" + location + "&";
-          call = call + "title=" + title + "&";
-          call = call + "phoneNum=" + phoneNum;
 
-          await registerWithEmailAndPassword(
-            firstName + " " + lastName,
-            username,
-            password
-          )
-            .then((userAuth) => {
-              // Update the newly created user with a display name and a picture
-              updateProfile(userAuth.user, {
-                displayName: firstName + " " + lastName,
-              })
-                .then(
-                  // Dispatch the user information for persistence in the redux state
-                  dispatch(
-                    login({
-                      email: userAuth.user.email,
-                      uid: userAuth.user.uid,
-                      displayName: firstName + " " + lastName,
-                    })
-                  )
-                )
-                .catch((error) => {
-                  console.log(error);
-                  setError(error);
-                });
-            })
-            .catch((err) => {
-              alert(err);
+    if (firstName == "") {
+      return alert("Please enter a full name");
+    } else if (username === "") {
+      alert("please enter an email");
+    } else if (password !== retypepassword) {
+      alert("passwords do not match");
+    } else {
+      // Create a new user with Firebase
+      let call = "/SendEmployee/?";
+      call = call + "firstName=" + firstName + "&";
+      call = call + "lastName=" + lastName + "&";
+      call = call + "secretCode=" + secretcode + "&";
+      call = call + "dob=" + dob + "&";
+      call = call + "workExp=" + workExp + "&";
+      call = call + "location=" + location + "&";
+      call = call + "title=" + title + "&";
+      call = call + "phoneNum=" + phoneNum + "&";
+      call = call + "dailySalary=" + "0" + "&";
+      call = call + "daysAttended=" + "0" + "&";
+      call = call + "overtimeHourlyRate=" + "0" + "&";
+      call = call + "overtimeHours=" + "0" + "&";
+      call = call + "deductions=" + "0" + "&";
+      call = call + "overallSalary=" + "0";
+      await registerWithEmailAndPassword(
+        firstName + " " + lastName,
+        username,
+        password
+      )
+        .then((userAuth) => {
+          // Update the newly created user with a display name and a picture
+          updateProfile(userAuth.user, {
+            displayName: firstName + " " + lastName,
+          })
+            .then(
+              // Dispatch the user information for persistence in the redux state
+              dispatch(
+                login({
+                  email: userAuth.user.email,
+                  uid: userAuth.user.uid,
+                  displayName: firstName + " " + lastName,
+                })
+              )
+            )
+            .catch((error) => {
+              console.log(error);
+              setError(error);
             });
-          navigate("/");
-        await (await fetch(call)).json();
-        }
-    
-  };
-    
-  
+        })
+        .catch((err) => {
+          //alert(err);
+        })
+        .then(signOutWithGoogle);
+      navigate("/");
+      await (await fetch(call)).json();
+    }
+  }
+
   /* const schema = {
     username: Joi.string().required().email().label("Username"),
     password: Joi.string().required().min(5).label("Password"),
@@ -173,7 +173,14 @@ else if (username==="") {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box component="form" onSubmit={(e)=>{register(e);}} noValidate sx={{ mt: 1 }}>
+          <Box
+            component="form"
+            onSubmit={(e) => {
+              register(e);
+            }}
+            noValidate
+            sx={{ mt: 1 }}
+          >
             <TextField
               value={firstName}
               margin="normal"
@@ -185,7 +192,7 @@ else if (username==="") {
               autoComplete="firstname"
               onChange={(e) => setFirstName(e.target.value)}
             />
-             <TextField
+            <TextField
               value={lastName}
               margin="normal"
               required
@@ -209,7 +216,7 @@ else if (username==="") {
               autoFocus
               onChange={(e) => setName(e.target.value)}
             />
-             <TextField
+            <TextField
               value={secretcode}
               margin="normal"
               required
@@ -219,8 +226,8 @@ else if (username==="") {
               id="secretcode"
               onChange={(e) => setSecretCode(e.target.value)}
             />
-              <TextField
-              InputLabelProps={{ shrink: true }}  
+            <TextField
+              InputLabelProps={{ shrink: true }}
               value={dob}
               type="date"
               margin="normal"
@@ -231,7 +238,7 @@ else if (username==="") {
               id="dob"
               onChange={(e) => setDob(e.target.value)}
             />
-              <TextField
+            <TextField
               value={workExp}
               margin="normal"
               required
@@ -241,7 +248,7 @@ else if (username==="") {
               id="workExp"
               onChange={(e) => setWorkExp(e.target.value)}
             />
-                 <TextField
+            <TextField
               value={location}
               margin="normal"
               required
@@ -251,7 +258,7 @@ else if (username==="") {
               id="location"
               onChange={(e) => setLocation(e.target.value)}
             />
-                 <TextField
+            <TextField
               value={title}
               margin="normal"
               required
@@ -261,7 +268,7 @@ else if (username==="") {
               id="title"
               onChange={(e) => setTitle(e.target.value)}
             />
-                 <TextField
+            <TextField
               value={phoneNum}
               margin="normal"
               required
@@ -296,8 +303,8 @@ else if (username==="") {
               onChange={(e) => setRetypepassword(e.target.value)}
             />
             <Typography component="h3" variant="h5">
-            {loginerror}
-          </Typography>
+              {loginerror}
+            </Typography>
             <Button
               type="submit"
               fullWidth
@@ -306,14 +313,7 @@ else if (username==="") {
             >
               Sign Up
             </Button>
-            <Button
-              onClick={signInWithGoogle}
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In With Google
-            </Button>
+
             <Grid container>
               <Grid item xs></Grid>
               <Grid item></Grid>

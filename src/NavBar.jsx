@@ -29,7 +29,7 @@ export default function ButtonAppBar() {
               style={{ textDecoration: "none", color: "white" }}
               to="components/signup/employersignup"
             >
-              Employer Signup
+              Employer Register
             </Link>
           </Button>
           <Button color="inherit">
@@ -37,16 +37,23 @@ export default function ButtonAppBar() {
               style={{ textDecoration: "none", color: "white" }}
               to="components/signup/employeesignup"
             >
-              Employee Signup
+              Employee Register
             </Link>
           </Button>
-          <Button color="inherit">
+          <Button
+            variant="outlined"
+            sx={{
+              color: "yellow",
+              backgroundColor: "orange",
+              borderColor: "green",
+            }}
+          >
             {" "}
             <Link
               style={{ textDecoration: "none", color: "white" }}
               to="components/signin/signin"
             >
-              Signin
+              Login
             </Link>
           </Button>
         </Toolbar>

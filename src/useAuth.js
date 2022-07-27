@@ -76,7 +76,8 @@ function useProvideAuth() {
         password
       );
       const user = res.user;
-     await addDoc(collection(db, "users"), {
+
+      await addDoc(collection(db, "users"), {
         uid: user.uid,
         fullname,
         authProvider: "local",
@@ -92,9 +93,11 @@ function useProvideAuth() {
         authProvider:"local"
       })*/
     } catch (err) {
-      console.error(err);
-      alert(err.message);
+      //console.error(err);
+      //alert(err.message);
     }
+    
+      
   };
 
   const signup = (e, email, password) => {

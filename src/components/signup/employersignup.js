@@ -79,63 +79,57 @@ const Submit = () => {
   //if (!username) alert("Please enter name");
   //registerWithEmailAndPassword(fullname, username, password);
   //};
-  async function register (event) {
+   const { signOutWithGoogle } = useAuth();
+   async function register(event) {
+     event.preventDefault();
 
-    event.preventDefault();
-   
-    if (firstName=="") {
-      return alert("Please enter a full name");
-    }
- 
-else if (username==="") {
-  alert("please enter an email")
-}
-    else if(password!==retypepassword) {
-      alert("passwords do not match")
-    }
-   
-    else{
-          // Create a new user with Firebase
-          let call = "/SendEmployer/?";
-          call = call + "firstName=" + firstName + "&";
-          call = call + "lastName=" + lastName + "&";
-          call = call + "secretCode=" + secretcode;
-          await registerWithEmailAndPassword(
-            firstName + " " + lastName,
-            username,
-            password
-          )
-            .then((userAuth) => {
-              // Update the newly created user with a display name and a picture
-              updateProfile(userAuth.user, {
-                displayName: firstName + " " + lastName,
-              })
-                .then(
-                  // Dispatch the user information for persistence in the redux state
-                  dispatch(
-                    login({
-                      email: userAuth.user.email,
-                      uid: userAuth.user.uid,
-                      displayName: firstName + " " + lastName,
-                    })
-                  )
-                )
-                .catch((error) => {
-                  console.log(error);
-                  setError(error);
-                });
-            })
-            .catch((err) => {
-              alert(err);
-            });
-          navigate("/");
-          await (await fetch(call)).json();
-        }
-    
-  };
-    
-  
-  /* const schema = {
+     if (firstName == "") {
+       return alert("Please enter a full name");
+     } else if (username === "") {
+       alert("please enter an email");
+     } else if (password !== retypepassword) {
+       alert("passwords do not match");
+     } else {
+       // Create a new user with Firebase
+       let call = "/SendEmployer/?";
+       call = call + "firstName=" + firstName + "&";
+       call = call + "lastName=" + lastName + "&";
+       call = call + "secretCode=" + secretcode;
+       await registerWithEmailAndPassword(
+         firstName + " " + lastName,
+         username,
+         password
+       )
+         .then((userAuth) => {
+           // Update the newly created user with a display name and a picture
+           updateProfile(userAuth.user, {
+             displayName: firstName + " " + lastName,
+           })
+             .then(
+               // Dispatch the user information for persistence in the redux state
+               dispatch(
+                 login({
+                   email: userAuth.user.email,
+                   uid: userAuth.user.uid,
+                   displayName: firstName + " " + lastName,
+                 })
+               )
+             )
+             .catch((error) => {
+               console.log(error);
+               setError(error);
+             });
+         })
+         .catch((err) => {
+          // alert(err);
+         })
+         .then(signOutWithGoogle);
+       navigate("/");
+       await (await fetch(call)).json();
+     }
+   }
+
+   /* const schema = {
     username: Joi.string().required().email().label("Username"),
     password: Joi.string().required().min(5).label("Password"),
     name: Joi.string().required().label("Name"),
@@ -149,122 +143,122 @@ else if (username==="") {
     data[input.name] = input.value;
     this.setState({ data, errors });
   }; */
-  return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <Box component="form" onSubmit={(e)=>{register(e);}} noValidate sx={{ mt: 1 }}>
-            <TextField
-              value={firstName}
-              margin="normal"
-              required
-              fullWidth
-              name="firstname"
-              label="Firstname"
-              id="firstname"
-              autoComplete="firstname"
-              onChange={(e) => setFirstName(e.target.value)}
-            />
+   return (
+     <ThemeProvider theme={theme}>
+       <Container component="main" maxWidth="xs">
+         <CssBaseline />
+         <Box
+           sx={{
+             marginTop: 8,
+             display: "flex",
+             flexDirection: "column",
+             alignItems: "center",
+           }}
+         >
+           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+             <LockOutlinedIcon />
+           </Avatar>
+           <Typography component="h1" variant="h5">
+             Sign up
+           </Typography>
+           <Box
+             component="form"
+             onSubmit={(e) => {
+               register(e);
+             }}
+             noValidate
+             sx={{ mt: 1 }}
+           >
              <TextField
-              value={lastName}
-              margin="normal"
-              required
-              fullWidth
-              name="lastname"
-              label="Lastname"
-              id="lastname"
-              autoComplete="lastname"
-              onChange={(e) => setLastName(e.target.value)}
-            />
+               value={firstName}
+               margin="normal"
+               required
+               fullWidth
+               name="firstname"
+               label="Firstname"
+               id="firstname"
+               autoComplete="firstname"
+               onChange={(e) => setFirstName(e.target.value)}
+             />
+             <TextField
+               value={lastName}
+               margin="normal"
+               required
+               fullWidth
+               name="lastname"
+               label="Lastname"
+               id="lastname"
+               autoComplete="lastname"
+               onChange={(e) => setLastName(e.target.value)}
+             />
 
-            <TextField
-              value={username}
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              onChange={(e) => setName(e.target.value)}
-            />
              <TextField
-              value={secretcode}
-              margin="normal"
-              required
-              fullWidth
-              name="secretcode"
-              label="Secretcode"
-              id="secretcode"
-              onChange={(e) => setSecretCode(e.target.value)}
-            />
-            <TextField
-              value={password}
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <TextField
-              value={retypepassword}
-              margin="normal"
-              required
-              fullWidth
-              name="retypepassword"
-              label="Re-enter Password"
-              type="password"
-              id="retypepassword"
-              autoComplete="current-password"
-              onChange={(e) => setRetypepassword(e.target.value)}
-            />
-            <Typography component="h3" variant="h5">
-            {loginerror}
-          </Typography>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Button
-              onClick={signInWithGoogle}
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In With Google
-            </Button>
-            <Grid container>
-              <Grid item xs></Grid>
-              <Grid item></Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Container>
-    </ThemeProvider>
-  );
+               value={username}
+               margin="normal"
+               required
+               fullWidth
+               id="email"
+               label="Email"
+               name="email"
+               autoComplete="email"
+               autoFocus
+               onChange={(e) => setName(e.target.value)}
+             />
+             <TextField
+               value={secretcode}
+               margin="normal"
+               required
+               fullWidth
+               name="secretcode"
+               label="Secretcode"
+               id="secretcode"
+               onChange={(e) => setSecretCode(e.target.value)}
+             />
+             <TextField
+               value={password}
+               margin="normal"
+               required
+               fullWidth
+               name="password"
+               label="Password"
+               type="password"
+               id="password"
+               autoComplete="current-password"
+               onChange={(e) => setPassword(e.target.value)}
+             />
+             <TextField
+               value={retypepassword}
+               margin="normal"
+               required
+               fullWidth
+               name="retypepassword"
+               label="Re-enter Password"
+               type="password"
+               id="retypepassword"
+               autoComplete="current-password"
+               onChange={(e) => setRetypepassword(e.target.value)}
+             />
+             <Typography component="h3" variant="h5">
+               {loginerror}
+             </Typography>
+             <Button
+               type="submit"
+               fullWidth
+               variant="contained"
+               sx={{ mt: 3, mb: 2 }}
+             >
+               Sign Up
+             </Button>
+
+             <Grid container>
+               <Grid item xs></Grid>
+               <Grid item></Grid>
+             </Grid>
+           </Box>
+         </Box>
+       </Container>
+     </ThemeProvider>
+   );
 };
 
 export default function EmployerSignup() {

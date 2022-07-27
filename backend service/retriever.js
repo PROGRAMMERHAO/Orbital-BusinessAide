@@ -61,6 +61,35 @@ findUserType = async (email) => {
   }
 };
 
+
+getEmployerName = async (employeeName) => {
+  const employeeRef = db.collection("employees").doc(employeeName);
+  let doc = await employeeRef.get();
+  console.log(doc);
+  secretCode = doc.data().secretcode;
+  const employers = db.collection("employers");
+  const snapshot = await employers.where("secretcode", "==", secretCode).get();
+  if (snapshot.empty) {
+    console.log("No employer found");
+    return -1;
+  }
+
+  create = (snapshot) => {
+    var employerName;
+    snapshot.forEach((doc) => {
+      employerName = doc.data().firstName + " " + doc.data().lastName;
+    });
+    return employerName;
+  };
+
+  let employerName = await create(snapshot);
+  console.log(employerName);
+  console.log("employer found");
+  if (employerName !== undefined) {
+    return { status: "success", employerName };
+  }
+};
+
 getEmployeeData = async (employeeName) => {
   const employees = db.collection("employees");
   const nameArray = employeeName.split(" ");
@@ -353,4 +382,5 @@ module.exports = {
   findUserType,
   getAllEmployeeSalary,
   getAllEmployeeTaskData,
+  getEmployerName,
 };

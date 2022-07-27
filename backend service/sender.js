@@ -43,65 +43,89 @@ sendEmployee = async (
   workExp,
   location,
   title,
-  phoneNum
+  phoneNum,
+  dailySalary,
+  daysAttended,
+  overtimeHourlyRate,
+  overtimeHours,
+  deductions,
+  overallSalary
 ) => {
-       var employer = await sc.findEmployer(secretCode);
-       if (employer == -1) {
-         console.log("No employer found, double check spelling");
-         return -1;
-       }
+  var employer = await sc.findEmployer(secretCode);
+  if (employer == -1) {
+    console.log("No employer found, double check spelling");
+    return -1;
+  }
 
-       assign = async (
-         firstName,
-         lastName,
-         secretCode,
-         employer,
-         dob,
-         workExp,
-         location,
-         title,
-         phoneNum
-       ) => {
-         var employeeData = {
-           firstName: firstName,
-           lastName: lastName,
-           secretcode: secretCode,
-           employer: employer,
-           dob: dob,
-           workExp: workExp,
-           location: location,
-           title: title,
-           phoneNum: phoneNum,
-         };
-         return employeeData;
-       };
+  assign = async (
+    firstName,
+    lastName,
+    secretCode,
+    employer,
+    dob,
+    workExp,
+    location,
+    title,
+    phoneNum,
+    dailySalary,
+    daysAttended,
+    overtimeHourlyRate,
+    overtimeHours,
+    deductions,
+    overallSalary
+  ) => {
+    var employeeData = {
+      firstName: firstName,
+      lastName: lastName,
+      secretcode: secretCode,
+      employer: employer,
+      dob: dob,
+      workExp: workExp,
+      location: location,
+      title: title,
+      phoneNum: phoneNum,
+      dailySalary: dailySalary,
+      daysAttended: daysAttended,
+      overtimeHourlyRate: overtimeHourlyRate,
+      overtimeHours: overtimeHours,
+      deductions: deductions,
+      overallSalary: overallSalary,
+    };
+    return employeeData;
+  };
 
-       assign(
-         firstName,
-         lastName,
-         secretCode,
-         employer,
-         dob,
-         workExp,
-         location,
-         title,
-         phoneNum
-       )
-         .then((employeeData) => {
-           db.collection("employees")
-             .doc(firstName + " " + lastName)
-             .set(employeeData);
-           console.log(employeeData);
-           db.collection("employers")
-             .doc(employer)
-             .collection("employees")
-             .doc(firstName + " " + lastName)
-             .set(employeeData);
-         })
-         .then(() => {
-           console.log("Employee data sent!");
-         });
-     };
+  assign(
+    firstName,
+    lastName,
+    secretCode,
+    employer,
+    dob,
+    workExp,
+    location,
+    title,
+    phoneNum,
+    dailySalary,
+    daysAttended,
+    overtimeHourlyRate,
+    overtimeHours,
+    deductions,
+    overallSalary
+  )
+    .then((employeeData) => {
+      db.collection("employees")
+        .doc(firstName + " " + lastName)
+        .set(employeeData);
+      console.log(employeeData);
+      db.collection("employers")
+        .doc(employer)
+        .collection("employees")
+        .doc(firstName + " " + lastName)
+        .set(employeeData);
+    })
+    .then(() => {
+      console.log("Employee data sent!");
+    });
+};
 
 tempSendEmployee = (firstName, lastName, teamLeader) => {
   const tempData = {

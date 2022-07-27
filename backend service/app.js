@@ -191,7 +191,13 @@ app.get("/SendEmployee", async (req, res) => {
       req.query.workExp,
       req.query.location,
       req.query.title,
-      req.query.phoneNum
+      req.query.phoneNum,
+      req.query.dailySalary,
+      req.query.daysAttended,
+      req.query.overtimeHourlyRate,
+      req.query.overtimeHours,
+      req.query.deductions,
+      req.query.overallSalary
     )
     .then((ans) => {
       // you need the then to wait for the result of the function
@@ -231,14 +237,22 @@ app.get("/getAllEmployeeSalary", async (req, res) => {
   });
 });
 
-  app.get("/findUserType", async (req, res) => {
-    retriever.findUserType(req.query.email)
-      .then((ans) => {
-        // you need the then to wait for the result of the function
-        console.log(ans);
-        res.send(ans);
-      });
+app.get("/findUserType", async (req, res) => {
+  retriever.findUserType(req.query.email).then((ans) => {
+    // you need the then to wait for the result of the function
+    console.log(ans);
+    res.send(ans);
   });
+});
+
+app.get("/getEmployerName", async (req, res) => {
+  retriever.getEmployerName(req.query.employeeName).then((ans) => {
+    // you need the then to wait for the result of the function
+    console.log(ans);
+    res.send(ans);
+  });
+});
+
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, console.log(`Server started on port ${PORT}`));
