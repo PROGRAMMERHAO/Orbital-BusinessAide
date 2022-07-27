@@ -175,7 +175,7 @@ const Showpayroll = (props) => {
         <ListItemText
           primary={
             employees.length === 0
-              ? "loading..."
+              ? ""
               : "Total salary for the month: " +
                 employees
                   .map((element) => Number(element.overallSalary))
