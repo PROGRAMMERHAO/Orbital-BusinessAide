@@ -20,6 +20,7 @@ import { useState } from "react";
 
 //import HomePage from "./components/signin/mainpage";
 import EmployeeBar from "./employees/employeenavbar";
+import { Navigate } from "react-router-dom";
 
 export default function App() {
   const FindUserType = async (email) => {
@@ -45,7 +46,9 @@ export default function App() {
         usertype == "employer" ? (
           <Home name={username} />
         ) : (
-          <EmployeeBar name={username} />
+          <div>
+            <EmployeeBar name={username} />
+          </div>
         )
       ) : (
         <ButtonAppBar />

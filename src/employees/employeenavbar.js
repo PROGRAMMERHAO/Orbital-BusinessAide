@@ -1,6 +1,12 @@
 import { Component } from "react";
 import { useAuth } from "../useAuth";
-import { Link, Route, Routes, BrowserRouter } from "react-router-dom";
+import {
+  Link,
+  Route,
+  Routes,
+  BrowserRouter,
+  useNavigate,
+} from "react-router-dom";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -31,6 +37,7 @@ function EmployeeBar(props) {
   };
   const { signOutWithGoogle } = useAuth();
   const auth = getAuth();
+  let nav = useNavigate();
   const [employeeId, setEmployeeId] = useState("");
   const [username, setUsername] = useState();
   const FindUserType = async (email) => {
@@ -74,7 +81,13 @@ function EmployeeBar(props) {
                 View Tasks
               </Link>
             </Button>
-            <Button onClick={signOutWithGoogle} color="inherit">
+            <Button
+              onClick={() => {
+                signOutWithGoogle();
+                nav("/");
+              }}
+              color="inherit"
+            >
               sign out
             </Button>
           </Toolbar>

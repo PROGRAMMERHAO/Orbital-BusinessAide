@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "../../useAuth";
-
 import styled from "styled-components";
 import * as React from "react";
 import Avatar from "@mui/material/Avatar";
@@ -49,9 +48,12 @@ const Styles = styled.div`
   }
 `;
 const theme = createTheme();
+
 export function Signin() {
+  const nav = useNavigate();
   const { user } = useAuth();
   let navigate = useNavigate();
+  const [userstatus, setUser] = useState(null);
   const { signin } = useAuth();
   const [username, setName] = useState("");
   const [password, setPassword] = useState(null);
@@ -67,7 +69,18 @@ export function Signin() {
     this.setState({ data, errors });
   };
 
-  const handlesignin = (event) => {};
+  async function handleSubmit(event) {
+    try {
+      event.preventDefault();
+      let result = await signin(event, username, password);
+      console.log(result);
+      if (result) {
+        nav("/");
+      }
+    } catch (e) {
+      alert(e.message);
+    }
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -90,8 +103,7 @@ export function Signin() {
           <Box
             component="form"
             onSubmit={(e) => {
-              signin(e, username, password);
-              navigate("/");
+              handleSubmit(e);
             }}
             noValidate
             sx={{ mt: 1 }}

@@ -37,6 +37,7 @@ const EmployeesList = ({ getEmployeeId }) => {
   const { user } = useAuth();
   const [employees, setEmployees] = useState([]);
   const [name, setName] = useState([]);
+  const [errormessage, setErrormessage] = useState();
   useEffect(() => {
     getEmployees();
   }, []);
@@ -47,11 +48,19 @@ const EmployeesList = ({ getEmployeeId }) => {
       call1 = call1 + "email=" + user.email;
       let result = await (await fetch(call1)).json();
       console.log(result.name);
-      let call = "/getAllEmployeeSalary/?";
       setName(result.name);
+      let call = "/getAllEmployeeSalary/?";
       call = call + "employerName=" + result.name;
       let returned = await (await fetch(call)).json();
-      setEmployees(returned.body.map((doc) => ({ ...doc, id: doc })));
+      if (returned.status == "error") {
+        setErrormessage("You currently have no employees!");
+      }
+      setEmployees(
+        returned.body.map((doc) => ({
+          ...doc,
+          id: doc,
+        }))
+      );
     }
   };
   /* 
@@ -60,8 +69,7 @@ const EmployeesList = ({ getEmployeeId }) => {
     getEmployees();
   }; */
 
-  return (
-    /*   {namecards.map(({ id, data: { Firstname, Lastname, TeamLeader } }) => (
+  /*   {namecards.map(({ id, data: { Firstname, Lastname, TeamLeader } }) => (
         <Cards
           key={id}
           Firstname={Firstname}
@@ -69,12 +77,22 @@ const EmployeesList = ({ getEmployeeId }) => {
           TeamLeader={TeamLeader}
         />
       ))} */
+
+  return errormessage ? (
+    <h1>{errormessage}</h1>
+  ) : employees.length == 0 ? (
+    <div>loading...</div>
+  ) : (
     <div>
       <Grid
         container
         rowSpacing={1}
         columns={12}
-        columnSpacing={{ xs: 2, sm: 2, md: 3 }}
+        columnSpacing={{
+          xs: 2,
+          sm: 2,
+          md: 3,
+        }}
       >
         {employees.map((doc, index) => {
           console.log(doc);
@@ -82,7 +100,10 @@ const EmployeesList = ({ getEmployeeId }) => {
             <Grid item xs={3} key={doc.name}>
               <Link
                 to={"/Individual/" + doc.name}
-                style={{ textDecoration: "none", color: "black" }}
+                style={{
+                  textDecoration: "none",
+                  color: "black",
+                }}
                 key={doc.name}
               >
                 <Cards

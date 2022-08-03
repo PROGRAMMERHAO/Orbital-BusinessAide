@@ -34,6 +34,7 @@ export default function Employeetasklist() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [progress, setProgress] = useState([]);
+  const [errormessage, setErrormessage] = useState();
   const refreshPage = () => {
     window.location.reload();
   };
@@ -58,6 +59,9 @@ export default function Employeetasklist() {
     let call = "/displayEmployeeTask/?";
     call = call + "employeeName=" + result1.name;
     let result = await (await fetch(call)).json();
+    if (result.status == "empty") {
+      setErrormessage("There are no tasks");
+    }
     for (let i = 0; i < result.body.length; i++) {
       task[i] = result.body[i];
       setTasks((tasks) => [...tasks, result.body[i]]);
@@ -107,22 +111,21 @@ export default function Employeetasklist() {
     console.log(progress);
   }, [tasks]);
 
-  return tasks === [] ? (
-    <div>loading...</div>
-  ) : (
+  return (
     <div>
       <h1>Task Page</h1>
-
-      <Grid
-        container
-        rowSpacing={20}
-        columns={12}
-        columnSpacing={{ xs: 2, sm: 2, md: 3 }}
-      >
-        {tasks === [] ? (
-          <h2>loading...</h2>
-        ) : (
-          tasks.map((doc, index) => {
+      {errormessage ? (
+        <h2>There are no tasks!</h2>
+      ) : tasks.length === 0 ? (
+        <div>loading...</div>
+      ) : (
+        <Grid
+          container
+          rowSpacing={20}
+          columns={12}
+          columnSpacing={{ xs: 2, sm: 2, md: 3 }}
+        >
+          {tasks.map((doc, index) => {
             return (
               <Grid item xs={3}>
                 <Card sx={{ maxWidth: 345 }}>
@@ -161,9 +164,9 @@ export default function Employeetasklist() {
                 </Card>
               </Grid>
             );
-          })
-        )}
-      </Grid>
+          })}
+        </Grid>
+      )}
     </div>
   );
 }

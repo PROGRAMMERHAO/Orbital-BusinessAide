@@ -21,7 +21,8 @@ export default function Home() {
             <SendIcon />
           </ListItemIcon>
           <Typography fontFamily={'"Segoe UI"'} variant="h6">
-            Please go to Login page to sign in after registration
+            Please go to Login page to sign in after registration, as
+            registeration does not sign you in
           </Typography>
         </Card>
       </ListItem>

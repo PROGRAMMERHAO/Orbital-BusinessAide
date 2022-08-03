@@ -26,27 +26,25 @@ app.get("/getEmployee", (req, res) => {
 });
 
 app.get("/createMainTask", async (req, res) => {
-                                                 console.log(
-                                                   req.query.taskname
-                                                 );
-                                                 console.log(
-                                                   req.query.description
-                                                 );
-                                                 console.log(
-                                                   req.query.employer
-                                                 );
-                                                 console.log(req.query.people);
-                                                 workerArr = req.query.people.split(
-                                                   ","
-                                                 );
+  console.log(req.query.taskname);
+  console.log(req.query.description);
+  console.log(req.query.employer);
+  console.log(req.query.people);
+  workerArr = req.query.people.split(",");
 
-                                                 let x = await task.createMainTask(
-                                                   req.query.taskname,
-                                                   req.query.description,
-                                                   req.query.employer,
-                                                   workerArr
-                                                 );
-                                               });
+  await task
+    .createMainTask(
+      req.query.taskname,
+      req.query.description,
+      req.query.employer,
+      workerArr
+    )
+    .then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+      res.send(ans);
+    });
+});
 
 app.get("/createSubTask", async (req, res) => {
   console.log(req.query.subTaskName);
@@ -54,14 +52,20 @@ app.get("/createSubTask", async (req, res) => {
   console.log(req.query.goal);
   console.log(req.query.mainTaskName);
   workerArr = req.query.workerArray.split(",");
-  let x = await task.createSubTask(
-    req.query.subTaskName,
-    req.query.subTaskDesc,
-    req.query.goal,
-    req.query.mainTaskName,
-    req.query.employerName,
-    workerArr
-  );
+  await task
+    .createSubTask(
+      req.query.subTaskName,
+      req.query.subTaskDesc,
+      req.query.goal,
+      req.query.mainTaskName,
+      req.query.employerName,
+      workerArr
+    )
+    .then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+      res.send(ans);
+    });
 });
 
 app.get("/displayTask", async (req, res) => {
@@ -141,24 +145,42 @@ app.get("/mainTaskProgress", async (req, res) => {
 });
 
 app.get("/subTaskProgress", async (req, res) => {
-  task.progressSubTask(
-    req.query.subTaskName,
-    req.query.value,
-    req.query.mainTaskName,
-    req.query.employerName
-  );
+  task
+    .progressSubTask(
+      req.query.subTaskName,
+      req.query.value,
+      req.query.mainTaskName,
+      req.query.employerName
+    )
+    .then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+      res.send(ans);
+    });
 });
 
 app.get("/completeMainTask", async (req, res) => {
-  task.completeMainTask(req.query.mainTaskName, req.query.employerName);
+  task
+    .completeMainTask(req.query.mainTaskName, req.query.employerName)
+    .then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+      res.send(ans);
+    });
 });
 
 app.get("/completeSubTask", async (req, res) => {
-  task.completeSubTask(
-    req.query.subTaskName,
-    req.query.mainTaskName,
-    req.query.employerName
-  );
+  task
+    .completeSubTask(
+      req.query.subTaskName,
+      req.query.mainTaskName,
+      req.query.employerName
+    )
+    .then((ans) => {
+      // you need the then to wait for the result of the function
+      console.log(ans);
+      res.send(ans);
+    });
 });
 
 app.get("/sendPayroll", async (req, res) => {
@@ -224,7 +246,7 @@ app.get("/sendFeedback", async (req, res) => {
       req.query.mainTaskName
     )
     .then((ans) => {
-      // you need the then to wait for the result of the function
+      res.send(ans);
       console.log(ans);
     });
 });

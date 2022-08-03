@@ -15,24 +15,19 @@ import {
   where,
   addDoc,
 } from "firebase/firestore";
-
 import React, { useState, useEffect, useContext, createContext } from "react";
-import {getDatabase ,ref, set} from "firebase/database"
-
+import { useNavigate } from "react-router-dom";
+import { getDatabase, ref, set } from "firebase/database";
 import { config as firebaseConfig } from "./config";
-
 // Code edited from https://usehooks.com/useAuth/ and
 // https://firebase.google.com/docs/auth/web/start#add-initialize-sdk
 // Not my original work.
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication and get a reference to the service
 const firebaseAuth = getAuth(app);
-
 const googleAuthProvider = new GoogleAuthProvider();
-
 const authContext = createContext();
 const db = getFirestore(app);
 // Provider component that wraps your app and makes auth object ...
@@ -54,20 +49,20 @@ function useProvideAuth() {
 
   // Wrap any Firebase methods we want to use making sure ...
   // ... to save the user to state.
-  const signin = async(e, email, password) => {
+  const signin = async (e, email, password) => {
     e.preventDefault();
     const auth = getAuth();
-    return signInWithEmailAndPassword(auth, email, password).then(
-      (response) => {
+    return signInWithEmailAndPassword(auth, email, password)
+      .then((response) => {
         setUser(response.user);
         return response.user;
-      }
-      
-    );
-
+      })
+      .catch((error) => {
+        alert(error);
+      });
   };
   const registerWithEmailAndPassword = async (fullname, username, password) => {
-   const database = getDatabase(app);
+    const database = getDatabase(app);
     try {
       const auth = getAuth(app);
       const res = await createUserWithEmailAndPassword(
@@ -96,8 +91,6 @@ function useProvideAuth() {
       //console.error(err);
       //alert(err.message);
     }
-    
-      
   };
 
   const signup = (e, email, password) => {

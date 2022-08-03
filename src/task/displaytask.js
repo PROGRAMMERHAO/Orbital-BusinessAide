@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useAuth } from "../useAuth";
 
+
 const bull = (
   <Box
     component="span"
@@ -40,8 +41,10 @@ export default function OutlinedCard() {
   };
   var username;
   var task = [];
+
   const { user } = useAuth();
   const [employerName, setEmployername] = useState();
+  const [errormessage, setErrormessage] = useState();
   const FindUserType = async (email) => {
     let call = "/findUserType/?";
     call = call + "email=" + email;
@@ -54,6 +57,10 @@ export default function OutlinedCard() {
     let call2 = "/displayTask/?";
     call2 = call2 + "employerName=" + username;
     let result2 = await (await fetch(call2)).json();
+    console.log(result2);
+    if (result2.status == "empty") {
+      setErrormessage("There are no tasks");
+    }
     for (let i = 0; i < result2.body.length; i++) {
       task[i] = result2.body[i];
       setTasks((tasks) => [...tasks, result2.body[i]]);
@@ -125,15 +132,16 @@ export default function OutlinedCard() {
     console.log(progress);
   }, [tasks]);
 
-  if (tasks.length === null) {
+  /*if (tasks.length === 0) {
     return <div>loading...</div>;
-  }
-  return tasks === [] ? (
+  }*/
+  return errormessage ? (
+    <h1>{errormessage}</h1>
+  ) : tasks.length == 0 ? (
     <div>loading...</div>
   ) : (
     <div>
       <h1>Task Page</h1>
-
       <Grid
         container
         rowSpacing={20}
@@ -144,61 +152,57 @@ export default function OutlinedCard() {
           md: 3,
         }}
       >
-        {tasks === [] ? (
-          <h2>loading...</h2>
-        ) : (
-          tasks.map((doc, index) => {
-            return (
-              <Grid item xs={3}>
-                <Card sx={{ maxWidth: 345 }}>
-                  <CardContent>
-                    <Typography
-                      sx={{
-                        fontSize: 20,
-                      }}
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      Current Task
-                    </Typography>
-                    <Typography variant="h5" component="div">
-                      {doc ? doc : "loading"}
-                    </Typography>
-                    <Typography variant="body2">
-                      {progress[index] ? (
-                        <ProgressBar
-                          bgcolor={"#6a1b9a"}
-                          completed={Math.round((progress[index] / 1) * 100)}
-                        />
-                      ) : (
-                        <ProgressBar bgcolor={"#6a1b9a"} completed={0} />
-                      )}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Link
-                      to="/task/singletask"
-                      state={doc}
-                      style={{
-                        textDecoration: "none",
-                        color: "blue",
-                      }}
-                    >
-                      View Task
-                    </Link>
-                    <span
-                      style={{
-                        color: "white",
-                      }}
-                    >
-                      hahahaha
-                    </span>
-                  </CardActions>
-                </Card>
-              </Grid>
-            );
-          })
-        )}
+        {tasks.map((doc, index) => {
+          return (
+            <Grid item xs={3}>
+              <Card sx={{ maxWidth: 345 }}>
+                <CardContent>
+                  <Typography
+                    sx={{
+                      fontSize: 20,
+                    }}
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Current Task
+                  </Typography>
+                  <Typography variant="h5" component="div">
+                    {doc ? doc : "loading"}
+                  </Typography>
+                  <Typography variant="body2">
+                    {progress[index] ? (
+                      <ProgressBar
+                        bgcolor={"#6a1b9a"}
+                        completed={Math.round((progress[index] / 1) * 100)}
+                      />
+                    ) : (
+                      <ProgressBar bgcolor={"#6a1b9a"} completed={0} />
+                    )}
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Link
+                    to="/task/singletask"
+                    state={doc}
+                    style={{
+                      textDecoration: "none",
+                      color: "blue",
+                    }}
+                  >
+                    View Task
+                  </Link>
+                  <span
+                    style={{
+                      color: "white",
+                    }}
+                  >
+                    hahahaha
+                  </span>
+                </CardActions>
+              </Card>
+            </Grid>
+          );
+        })}
       </Grid>
     </div>
   );

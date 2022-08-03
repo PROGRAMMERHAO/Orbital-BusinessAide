@@ -228,6 +228,14 @@ getAllTaskData = async (employerName) => {
     .doc(employerName)
     .collection("tasks")
     .get();
+  if (snapshot.empty) {
+    result = {
+      status: "empty",
+      reason: "This employer has not assigned any tasks",
+      body: [],
+    };
+    return result;
+  }
   wait = async (snapshot) => {
     tempTaskArray = [];
     snapshot.forEach((doc) => {
@@ -243,13 +251,20 @@ getAllTaskData = async (employerName) => {
   };
   return result;
 };
-
 getAllEmployeeTaskData = async (employeeName) => {
   const snapshot = await db
     .collection("employees")
     .doc(employeeName)
     .collection("tasks")
     .get();
+  if (snapshot.empty) {
+    result = {
+      status: "empty",
+      reason: "This employer has not assigned any tasks",
+      body: [],
+    };
+    return result;
+  }
   wait = async (snapshot) => {
     tempTaskArray = [];
     snapshot.forEach((doc) => {

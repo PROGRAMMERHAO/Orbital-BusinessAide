@@ -47,20 +47,21 @@ sendFeedback = async (
   }
 
   assign = (feedback, anonymousCheck, employeeName) => {
-    if (anonymousCheck) {
+    if (anonymousCheck != "false") {
       // if the employee wishes to be anonymous
       feedbackData = {
         feedback: feedback,
         employee: "anonymous",
       };
       return feedbackData;
+    } else {
+      feedbackData = {
+        // if the employee does not wish to be anonymous
+        feedback: feedback,
+        employee: employeeName,
+      };
+      return feedbackData;
     }
-    feedbackData = {
-      // if the employee does not wish to be anonymous
-      feedback: feedback,
-      employee: employeeName,
-    };
-    return feedbackData;
   };
 
   let data = await assign(feedback, anonymousCheck, employeeName);
@@ -79,6 +80,8 @@ sendFeedback = async (
     reason: "Feedback has been sent successfully!",
   };
   console.log(result);
+  return result;
+ 
 };
 
 // Function that returns an array of objects containing the feedback of a main task

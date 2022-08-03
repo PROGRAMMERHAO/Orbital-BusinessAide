@@ -1,6 +1,12 @@
 import { Component } from "react";
 import { useAuth } from "./useAuth";
-import { Link, Route, Routes, BrowserRouter } from "react-router-dom";
+import {
+  Link,
+  Route,
+  Routes,
+  BrowserRouter,
+  useNavigate,
+} from "react-router-dom";
 import SignInUser from "./components/signin/signin.js";
 import CreateForm from "./components/signup/employeesignup.js";
 import * as React from "react";
@@ -35,6 +41,7 @@ function Home(props) {
   };
   const { signOutWithGoogle } = useAuth();
   const auth = getAuth();
+  let nav = useNavigate();
   const [employeeId, setEmployeeId] = useState("");
 
   const getEmployeeIdHandler = (id) => {
@@ -85,7 +92,10 @@ function Home(props) {
               </Link>
             </Button>
             <Button
-              onClick={signOutWithGoogle}
+              onClick={() => {
+                signOutWithGoogle();
+                nav("/");
+              }}
               variant="outlined"
               sx={{
                 color: "yellow",

@@ -312,7 +312,7 @@ mainTaskProgress = async (mainTaskName, employerName) => {
     result = {
       status: "success",
       reason: "There were no subtasks under " + mainTaskName,
-      value: mainTaskProgress,
+      body: mainTaskProgress,
     };
     return result;
   }

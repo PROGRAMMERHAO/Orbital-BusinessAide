@@ -227,7 +227,8 @@ export default function Employeesingletask(props) {
     call = call + "value=" + value + "&";
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
-    await (await fetch(call)).json();
+    let result = await (await fetch(call)).json();
+    alert(result.reason);
 
     //setProgress(progress[index]+1);
   };
@@ -242,7 +243,7 @@ export default function Employeesingletask(props) {
     call = call + "subTaskName=" + subTaskName + "&";
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
-    await (await fetch(call)).json();
+    let result = await (await fetch(call)).json();
   };
 
   const completeMainTask = async (mainTaskName, employerName) => {
@@ -450,7 +451,7 @@ export default function Employeesingletask(props) {
               );
             })
           ) : (
-            <div>loading...</div>
+            <div></div>
           )}
         </Grid>
       </CardContent>

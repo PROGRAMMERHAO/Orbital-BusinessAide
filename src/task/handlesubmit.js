@@ -7,7 +7,10 @@ const handleSubmit = async (taskname, description, employer, people) => {
   call = call + "description=" + description + "&";
   call = call + "employer=" + employer + "&";
   call = call + "people=" + people;
-  await (await fetch(call)).json();
+  let result;
+  result = await (await fetch(call)).json();
+  console.log(result.reason);
+  alert(result.reason);
 } else {
   alert("please enter a taskname")
 

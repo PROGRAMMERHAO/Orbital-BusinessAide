@@ -31,7 +31,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {IconButton} from "@mui/material";
 import { Box } from "@mui/system";
 import PaidIcon from '@mui/icons-material/Paid';
-
+import { useAuth } from "./useAuth";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -72,7 +72,9 @@ BootstrapDialogTitle.propTypes = {
 };
 
 export default function Individual() {
+  const { user } = useAuth();
   const [employees, setEmployees] = useState([]);
+  const [employer, setEmployername] = useState();
   const { id } = useParams();
   const [open, setOpen] = React.useState(false);
   const [rate, setRate] = useState(0);
@@ -82,10 +84,22 @@ export default function Individual() {
   const [deductions, setDeductions] = useState(0);
   const [overall, setOverall] = useState(0);
   let feedback;
-  
+  const [totalsalary, setTotalsalary] = useState();
+  const FindUserType = async (email) => {
+    let call = "/findUserType/?";
+    call = call + "email=" + email;
+    let result = await (await fetch(call)).json();
+    console.log(result);
+    //setUsertype(result.body);
+    //setUsername(result.name);
+    setEmployername(result.name);
+  };
 
   useEffect(() => {
     getEmployees(id);
+    if (user) {
+      FindUserType(user.email);
+    }
   }, [id]);
 
   const handleClickOpen = () => {
@@ -95,7 +109,16 @@ export default function Individual() {
     setOpen(false);
   };
 
-  const sendPayroll = async (dailySalary, daysAttended, overtimeHourlyRate, overtimeHours, deductions, overallSalary, employeeName, employerName) => {
+  const sendPayroll = async (
+    dailySalary,
+    daysAttended,
+    overtimeHourlyRate,
+    overtimeHours,
+    deductions,
+    overallSalary,
+    employeeName,
+    employerName
+  ) => {
     let call = "/sendPayroll/?";
     call = call + "dailySalary=" + dailySalary + "&";
     call = call + "daysAttended=" + daysAttended + "&";
@@ -103,9 +126,9 @@ export default function Individual() {
     call = call + "overtimeHours=" + overtimeHours + "&";
     call = call + "deductions=" + deductions + "&";
     call = call + "overallSalary=" + overallSalary + "&";
-    call = call + "employeeName=" +  employeeName + "&";
+    call = call + "employeeName=" + employeeName + "&";
     call = call + "employerName=" + employerName;
-    let  result = await (await fetch(call)).json();
+    let result = await (await fetch(call)).json();
     feedback = result;
     alert(feedback.reason);
   };
@@ -116,6 +139,9 @@ export default function Individual() {
       data._document.data.value.mapValue.fields.firstName.stringValue
     );
     setEmployees(data);
+    setTotalsalary(
+      data._document.data.value.mapValue.fields.overallSalary.stringValue
+    );
   };
 
   console.log(employees);
@@ -127,8 +153,11 @@ export default function Individual() {
       </div>
     );
   } else {
-    const employeename = employees._document.data.value.mapValue.fields.firstName.stringValue+" "+employees._document.data.value.mapValue.fields.lastName.stringValue
-    console.log(employeename+" hello"+employeename);
+    const employeename =
+      employees._document.data.value.mapValue.fields.firstName.stringValue +
+      " " +
+      employees._document.data.value.mapValue.fields.lastName.stringValue;
+    console.log(employeename + " hello" + employeename);
     return (
       <div className="list" rowspacing={3}>
         <div
@@ -177,11 +206,7 @@ export default function Individual() {
             {employees._document.data.value.mapValue.fields.workExp.stringValue}
           </h3>
           <h3>
-            <PaidIcon></PaidIcon> Salary for the Month:{" "}
-            {
-              employees._document.data.value.mapValue.fields.overallSalary
-                .stringValue
-            }
+            <PaidIcon></PaidIcon> Salary for the Month: {totalsalary}
           </h3>
           <Button variant="outlined" onClick={handleClickOpen}>
             add new payroll
@@ -210,8 +235,13 @@ export default function Individual() {
                   autoComplete="rate"
                   autoFocus
                   onChange={(e) => {
-                    setRate(Number(e.target.value));
-                    setOverall(e.target.value * days + overtime - deductions);
+                    console.log(isNaN(e.target.value));
+                    if (!isNaN(e.target.value)) {
+                      setRate(Number(e.target.value));
+                      setOverall(e.target.value * days + overtime - deductions);
+                    } else {
+                      alert("please enter a number!");
+                    }
                   }}
                 />
 
@@ -226,10 +256,15 @@ export default function Individual() {
                   autoComplete="days"
                   autoFocus
                   onChange={(e) => {
+                    if (!isNaN(e.target.value)) {
                     setDays(Number(e.target.value));
                     setOverall(
                       rate * e.target.value + overtime * hourly - deductions
                     );
+                    }
+                    else {
+                       alert("please enter a number!");
+                    }
                   }}
                 />
                 <TextField
@@ -243,10 +278,15 @@ export default function Individual() {
                   autoComplete="hourly"
                   autoFocus
                   onChange={(e) => {
+                     if (!isNaN(e.target.value)) {
                     setHourly(Number(e.target.value));
                     setOverall(
                       rate * days + overtime * e.target.value - deductions
                     );
+                     }
+                     else {
+                       alert("please enter a number!");
+                     }
                   }}
                 />
                 <TextField
@@ -260,10 +300,15 @@ export default function Individual() {
                   autoComplete="overtime"
                   autoFocus
                   onChange={(e) => {
+                      if (!isNaN(e.target.value)) {
                     setOvertime(Number(e.target.value));
                     setOverall(
                       rate * days + Number(e.target.value) * hourly - deductions
                     );
+                      }
+                      else {
+                        alert("please enter a number!");
+                      }
                   }}
                 />
                 <TextField
@@ -275,10 +320,15 @@ export default function Individual() {
                   label="Deductions"
                   id="deductions"
                   onChange={(e) => {
+                      if (!isNaN(e.target.value)) {
                     setDeductions(Number(e.target.value));
                     setOverall(
                       rate * days + overtime * hourly - e.target.value
                     );
+                      }
+                      else {
+                        alert("please enter a number!")
+                      }
                   }}
                 />
                 <h3>The overall monthly salary is: {overall}</h3>
@@ -287,6 +337,7 @@ export default function Individual() {
             <DialogActions>
               <Button
                 onClick={() => {
+                  setTotalsalary(overall);
                   console.log(employeename);
                   sendPayroll(
                     rate,
@@ -296,7 +347,7 @@ export default function Individual() {
                     deductions,
                     overall,
                     employeename,
-                    "adam jerry"
+                    employer
                   );
                   handleClose();
                 }}

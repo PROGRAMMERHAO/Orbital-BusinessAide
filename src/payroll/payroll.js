@@ -101,6 +101,7 @@ const Showpayroll = (props) => {
   const [open, setOpen] = React.useState(false);
   let totalsalary = 0;
   const [total, setTotal] = useState(0);
+  const [errormessage, setErrormessage] = useState();
   const handleClick = () => {
     setOpen(!open);
   };
@@ -138,6 +139,9 @@ const Showpayroll = (props) => {
     let call = "/getAllEmployeeSalary/?";
     call = call + "employerName=" + employerName + "&";
     let result = await (await fetch(call)).json();
+    if (result.status == "error") {
+      setErrormessage("You currently have no employees!");
+    }
     console.log(result.body);
     setEmployees(
       result.body.map((doc) => ({
@@ -183,31 +187,35 @@ const Showpayroll = (props) => {
           }
         />
       </ListItemButton>
-      {employees.length === 0
-        ? ""
-        : employees.map((doc) => {
-            console.log(doc);
-            return (
-              <Link
-                to={"/Individual/" + doc.name}
-                style={{
-                  textDecoration: "none",
-                  color: "black",
-                }}
-                key={doc}
-              >
-                <ListItemButton key={doc.name}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={doc.name}
-                    secondary={"salary for the month: " + doc.overallSalary}
-                  />
-                </ListItemButton>
-              </Link>
-            );
-          })}
+      {errormessage ? (
+        <h1>{errormessage}</h1>
+      ) : employees.length == 0 ? (
+        <div>loading...</div>
+      ) : (
+        employees.map((doc) => {
+          console.log(doc);
+          return (
+            <Link
+              to={"/Individual/" + doc.name}
+              style={{
+                textDecoration: "none",
+                color: "black",
+              }}
+              key={doc}
+            >
+              <ListItemButton key={doc.name}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={doc.name}
+                  secondary={"salary for the month: " + doc.overallSalary}
+                />
+              </ListItemButton>
+            </Link>
+          );
+        })
+      )}
     </List>
   );
 };

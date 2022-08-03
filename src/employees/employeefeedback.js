@@ -124,6 +124,7 @@ export default function CreateFeedback(props) {
     call = call + "anonymousCheck=" + anonymousCheck + "&";
     call = call + "mainTaskName=" + mainTaskName;
     let result = await (await fetch(call)).json();
+    alert(result.reason);
     setReturned(result.body);
   };
   //useEffect(()=>{
@@ -215,7 +216,7 @@ export default function CreateFeedback(props) {
               //</BootstrapDialog>? alert("the employee is not found")
               //: console.log("subtask added");
               handleClose();
-              refreshPage();
+              console.log(anonymousCheck);
             }}
           >
             Create Feedback

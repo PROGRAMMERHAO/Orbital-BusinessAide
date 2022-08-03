@@ -120,7 +120,7 @@ export default function CreateSubtask({
   const [open, setOpen] = React.useState(false);
   const [task, setTask] = useState();
   const [description, setDescription] = useState();
-  const [goal, setGoal] = useState();
+  const [goal, setGoal] = useState(1);
   const [employername, setEmployername] = useState();
   const { user } = useAuth();
   const FindUserType = async (email) => {
@@ -160,6 +160,7 @@ export default function CreateSubtask({
     call = call + "employerName=" + employerName + "&";
     call = call + "workerArray=" + workerArray;
     let result = await (await fetch(call)).json();
+    alert(result.reason);
     setFeedback(result);
     localerror = result;
   };
@@ -249,18 +250,21 @@ export default function CreateSubtask({
                 inputProps: { min: 1 },
               }}
               value={goal}
-              type="number"
               margin="normal"
+              type="number"
+              min="1"
               required
               fullWidth
               name="goal"
-              label="Task Goal"
+              label="Task Goal (please enter a positive integer)"
               id="goal"
-              onChange={(e) =>
-                e.target.value > 0
-                  ? setGoal(e.target.value)
-                  : alert("please enter a positive integer")
-              }
+              onChange={(e) => {
+                if (!isNaN(e.target.value)) {
+                  setGoal(Number(e.target.value));
+                } else {
+                  alert("please enter a positive integer");
+                }
+              }}
             />
           </Box>
         </DialogContent>
@@ -268,12 +272,12 @@ export default function CreateSubtask({
           <Button
             autoFocus
             onClick={() => {
-              task === undefined ||
-              description === undefined ||
-              goal === undefined ||
-              employername === undefined ||
-              personName === undefined
-                ? alert("please complete all required fields")
+              personName.length == 0 ||
+              task == undefined ||
+              description == undefined ||
+              goal <= 0 ||
+              employername === undefined
+                ? alert("please complete all required fields correctly")
                 : subtaskSubmit(
                     task,
                     description,
@@ -282,7 +286,7 @@ export default function CreateSubtask({
                     employername,
                     personName
                   );
-
+              console.log(task);
               console.log(personName);
               console.log(feedback);
               feedback === -1
