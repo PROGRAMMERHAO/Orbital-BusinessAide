@@ -89,6 +89,8 @@ const Submit = () => {
        alert("please enter an email");
      } else if (password !== retypepassword) {
        alert("passwords do not match");
+     } else if (password.length < 6) {
+       alert("password must contain at least 6 characters/digits");
      } else {
        // Create a new user with Firebase
        let call = "/SendEmployer/?";
@@ -121,7 +123,7 @@ const Submit = () => {
              });
          })
          .catch((err) => {
-          // alert(err);
+           // alert(err);
          })
          .then(signOutWithGoogle);
        navigate("/");

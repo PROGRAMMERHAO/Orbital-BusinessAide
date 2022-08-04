@@ -160,7 +160,7 @@ export default function BasicCard(props) {
     }
   }, [isUpdated]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     console.log(mainprogress);
     console.log(mainworkers);
   }, [mainprogress, mainworkers]);
@@ -168,7 +168,7 @@ export default function BasicCard(props) {
   useEffect(() => {
     console.log(goal);
   }, [goal]);
-
+*/
   /*useEffect(() => {
     const viewSubTask = async (subTaskName, mainTaskName, employerName) => {
       let call = "/getSubTaskData/?";
@@ -193,11 +193,11 @@ export default function BasicCard(props) {
     
   }, [maintask, subtasks]);*/
 
-  useEffect(() => {
+  /*useEffect(() => {
     //progresstemp = progress;
     console.log(progress);
   }, [progress]);
-
+*/
   const viewMainTaskFeedback = async (mainTaskName, employerName) => {
     let call = "/viewMainTaskFeedback/?";
     call = call + "mainTaskName=" + mainTaskName + "&";
@@ -220,8 +220,8 @@ export default function BasicCard(props) {
     call = call + "value=" + value + "&";
     call = call + "mainTaskName=" + mainTaskName + "&";
     call = call + "employerName=" + employerName;
-    await (await fetch(call)).json();
-
+    let result = await (await fetch(call)).json();
+    alert(result.reason);
     //setProgress(progress[index]+1);
   };
 
@@ -362,7 +362,11 @@ export default function BasicCard(props) {
                         label="Increase New Progress by"
                         autoFocus
                         onChange={(e) => {
-                          setnewValue(e.target.value);
+                          if (!isNaN(e.target.value)) {
+                            setnewValue(e.target.value);
+                          } else {
+                            alert("please enter a number");
+                          }
                         }}
                       />
 

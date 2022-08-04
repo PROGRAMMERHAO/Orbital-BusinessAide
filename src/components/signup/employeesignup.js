@@ -90,6 +90,8 @@ const Submit = () => {
       alert("please enter an email");
     } else if (password !== retypepassword) {
       alert("passwords do not match");
+    } else if (password.length < 6) {
+      alert("password must contain at least 6 characters/digits");
     } else {
       // Create a new user with Firebase
       let call = "/SendEmployee/?";
@@ -288,7 +290,9 @@ const Submit = () => {
               type="password"
               id="password"
               autoComplete="current-password"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
             />
             <TextField
               value={retypepassword}

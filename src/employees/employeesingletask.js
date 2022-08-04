@@ -378,7 +378,12 @@ export default function Employeesingletask(props) {
                             label="Increase New Progress by"
                             autoFocus
                             onChange={(e) => {
-                              setnewValue(e.target.value);
+                              if (!isNaN(e.target.value)) {
+                                setnewValue(e.target.value);
+                              } else {
+                                alert("please enter a number");
+                              }
+                              
                             }}
                           />
 

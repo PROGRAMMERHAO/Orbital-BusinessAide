@@ -41,104 +41,74 @@ createMainTask = async (
   };
   // update employees database to track what they are currently working on
   updateEmployees = async (mainTaskName, employerName, workerArray) => {
-                                                                         // Format employee database
-                                                                         /*employeeRef = db
+    // Format employee database
+    /*employeeRef = db
       .collection("employees")
       .doc(employeeName)
       .collection("tasks");
 */
-                                                                         console.log(
-                                                                           workerArray
-                                                                         );
-                                                                         for (
-                                                                           i = 0;
-                                                                           i <
-                                                                           workerArray.length;
-                                                                           i++
-                                                                         ) {
-                                                                           employeeName =
-                                                                             workerArray[
-                                                                               i
-                                                                             ];
-                                                                           console.log(
-                                                                             employeeName
-                                                                           );
-                                                                           // check if the employee is under that employer, if not return error status
-                                                                           docRef = db
-                                                                             .collection(
-                                                                               "employers"
-                                                                             )
-                                                                             .doc(
-                                                                               employerName
-                                                                             )
-                                                                             .collection(
-                                                                               "employees"
-                                                                             )
-                                                                             .doc(
-                                                                               employeeName
-                                                                             );
-                                                                           let snapshot = await docRef.get();
-                                                                           if (
-                                                                             !snapshot.exists
-                                                                           ) {
-                                                                             // if the doc doesnt exist
-                                                                             result = {
-                                                                               status:
-                                                                                 "error",
-                                                                               reason:
-                                                                                 "No employee named" +
-                                                                                 employeeName +
-                                                                                 "were found under employer " +
-                                                                                 employerName +
-                                                                                 "! Try checking your spelling!",
-                                                                             };
-                                                                             console.log(
-                                                                               result
-                                                                             );
-                                                                             return result;
-                                                                           }
+    console.log(workerArray);
+    for (i = 0; i < workerArray.length; i++) {
+      employeeName = workerArray[i];
+      console.log(employeeName);
+      // check if the employee is under that employer, if not return error status
+      docRef = db
+        .collection("employers")
+        .doc(employerName)
+        .collection("employees")
+        .doc(employeeName);
+      let snapshot = await docRef.get();
+      if (!snapshot.exists) {
+        // if the doc doesnt exist
+        result = {
+          status: "error",
+          reason:
+            "No employee named" +
+            employeeName +
+            "were found under employer " +
+            employerName +
+            "! Try checking your spelling!",
+        };
+        console.log(result);
+        return result;
+      }
 
-                                                                           let res = await createEmployeeMainTask(
-                                                                             employeeName,
-                                                                             mainTaskName,
-                                                                             taskData
-                                                                           );
-                                                                           if (
-                                                                             res.status ==
-                                                                             "error"
-                                                                           ) {
-                                                                             console.log(
-                                                                               res
-                                                                             );
-                                                                             return res;
-                                                                           }
+      let res = await createEmployeeMainTask(
+        employeeName,
+        mainTaskName,
+        taskData
+      );
+      if (res.status == "error") {
+        console.log(res);
+        return res;
+      }
 
-                                                                           // Currently unneeded due to reformatting of database
-                                                                           // employeeRef = db.collection("employees").doc(employeeName);
-                                                                           // let doc = await employeeRef.get();
-                                                                           // if (!doc.data().currentTask) { // Employee currently does not have any main tasks
-                                                                           //   mainTaskData = {name: mainTaskName, subTasks: []};
-                                                                           //   data = {mainTasks: [mainTaskData]};
-                                                                           // } else {  // If Employee already has a main task
-                                                                           //   data = doc.data().currentTask;
-                                                                           //   mainTaskData = {name: mainTaskName, subTasks: []};
-                                                                           //   data.mainTasks.push(mainTaskData);
-                                                                           // }
+      // Currently unneeded due to reformatting of database
+      // employeeRef = db.collection("employees").doc(employeeName);
+      // let doc = await employeeRef.get();
+      // if (!doc.data().currentTask) { // Employee currently does not have any main tasks
+      //   mainTaskData = {name: mainTaskName, subTasks: []};
+      //   data = {mainTasks: [mainTaskData]};
+      // } else {  // If Employee already has a main task
+      //   data = doc.data().currentTask;
+      //   mainTaskData = {name: mainTaskName, subTasks: []};
+      //   data.mainTasks.push(mainTaskData);
+      // }
 
-                                                                           // employeeRef.update({
-                                                                           //   currentTask: data,
-                                                                           // });
-                                                                           // docRef.update({
-                                                                           //   currentTask: data,
-                                                                           // });
-                                                                         }
-                                                                         /*esult = {
+      // employeeRef.update({
+      //   currentTask: data,
+      // });
+      // docRef.update({
+      //   currentTask: data,
+      // });
+    }
+    /*esult = {
         status: "success",
         reason: "Employee data has been successfully updated!",
       };
       return result;
     */
-                                                                       };
+  };
 
   let res = await updateEmployees(mainTaskName, employerName, workerArray);
 
@@ -152,7 +122,7 @@ createMainTask = async (
   result = { status: "success", reason: mainTaskName + " has been created!" };
   console.log(result);
   return result;
-};
+};;;
 
 // Function to update sub tasks for employees in employees > tasks > sub tasks
 // Currently not exported
@@ -567,25 +537,25 @@ completeSubTask = async (subTaskName, mainTaskName, employerName) => {
 // If new value >= goal, instantly complete the subtask
 // Employer Side
 progressSubTask = async (subTaskName, value, mainTaskName, employerName) => {
-                                                                              subTaskRef = db
-                                                                                .collection(
-                                                                                  "employers"
-                                                                                )
-                                                                                .doc(
-                                                                                  employerName
-                                                                                )
-                                                                                .collection(
-                                                                                  "tasks"
-                                                                                )
-                                                                                .doc(
-                                                                                  mainTaskName
-                                                                                )
-                                                                                .collection(
-                                                                                  "subtasks"
-                                                                                )
-                                                                                .doc(
-                                                                                  subTaskName
-                                                                                );
+                                                                             subTaskRef = db
+                                                                               .collection(
+                                                                                 "employers"
+                                                                               )
+                                                                               .doc(
+                                                                                 employerName
+                                                                               )
+                                                                               .collection(
+                                                                                 "tasks"
+                                                                               )
+                                                                               .doc(
+                                                                                 mainTaskName
+                                                                               )
+                                                                               .collection(
+                                                                                 "subtasks"
+                                                                               )
+                                                                               .doc(
+                                                                                 subTaskName
+                                                                               );
                                                                               console.log(
                                                                                 employerName
                                                                               );
@@ -698,7 +668,9 @@ progressSubTask = async (subTaskName, value, mainTaskName, employerName) => {
                                                                                   ++i
                                                                                 ) {
                                                                                   await updateEmployee(
-                                                                                    employeeName,
+                                                                                    employeeArr[
+                                                                                      i
+                                                                                    ],
                                                                                     subTaskProgress +
                                                                                       newvalue,
                                                                                     subTaskStatus,
